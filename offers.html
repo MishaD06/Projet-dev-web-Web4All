@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offres de stage - StageLab</title>
+    <meta name="description" content="Trouvez le stage idéal parmi des centaines d'offres sur StageLab.">
+    <meta name="keywords" content="offres de stage, stage, CESI, étudiant, entreprise">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html">Stage<span>Lab</span></a>
+            </div>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="dashboard-student.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="offers.html" class="active"><i class="fas fa-briefcase"></i> Offres</a></li>
+                    <li><a href="companies.html"><i class="fas fa-building"></i> Entreprises</a></li>
+                    <li><a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a></li>
+                    <li><a href="candidatures.html"><i class="fas fa-file-alt"></i> Candidatures</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profil</a></li>
+                    <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>Offres de stage</h1>
+            <!-- Visible uniquement pour admin/pilote -->
+            <a href="admin/offer-form.html" class="btn"><i class="fas fa-plus"></i> Nouvelle offre</a>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card">
+            <form class="filters-bar" action="offers.html" method="get">
+                <input type="text" name="q" class="form-control" placeholder="Titre, mots-clés" style="flex: 2; min-width: 160px;">
+                <select name="competence" class="form-control" style="flex: 1; min-width: 140px;">
+                    <option value="">Toutes les compétences</option>
+                    <option>PHP</option>
+                    <option>JavaScript</option>
+                    <option>Python</option>
+                    <option>SQL</option>
+                    <option>Docker</option>
+                    <option>Figma</option>
+                </select>
+                <select name="entreprise" class="form-control" style="flex: 1; min-width: 140px;">
+                    <option value="">Toutes les entreprises</option>
+                    <option>TechCorp</option>
+                    <option>MarketPlus</option>
+                    <option>DataSys</option>
+                    <option>SoftDev</option>
+                    <option>Projex</option>
+                </select>
+                <button type="submit" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+            </form>
+        </div>
+
+        <!-- Grille d'offres -->
+        <div class="offers-grid">
+            <div class="offer-card">
+                <div class="offer-title">Développeur Full Stack</div>
+                <div class="offer-company"><i class="fas fa-building"></i> TechCorp · Paris</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> PHP, JS, MySQL</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 800 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 2 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=1" class="btn btn-small">Voir</a>
+                        <!-- Admin seulement -->
+                        <a href="admin/offer-form.html?id=1" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-title">Assistant Marketing</div>
+                <div class="offer-company"><i class="fas fa-building"></i> MarketPlus · Lyon</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> SEO, SEA, Anglais</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 700 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 3 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=2" class="btn btn-small">Voir</a>
+                        <a href="admin/offer-form.html?id=2" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-title">Data Analyst</div>
+                <div class="offer-company"><i class="fas fa-building"></i> DataSys · Toulouse</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> Python, SQL, Power BI</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 900 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 5 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=3" class="btn btn-small">Voir</a>
+                        <a href="admin/offer-form.html?id=3" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-title">Chef de projet</div>
+                <div class="offer-company"><i class="fas fa-building"></i> Projex · Nantes</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> Gestion, Agile, Jira</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 850 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 6 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=4" class="btn btn-small">Voir</a>
+                        <a href="admin/offer-form.html?id=4" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-title">UX Designer</div>
+                <div class="offer-company"><i class="fas fa-building"></i> DesignStudio · Lille</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> Figma, Adobe XD</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 750 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 7 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=5" class="btn btn-small">Voir</a>
+                        <a href="admin/offer-form.html?id=5" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-title">Cybersécurité</div>
+                <div class="offer-company"><i class="fas fa-building"></i> SecureIT · Rennes</div>
+                <div style="margin: 0.4rem 0; color: #64748b; font-size: 0.85rem;"><i class="fas fa-tag"></i> Réseau, Pentest</div>
+                <div style="margin: 0.3rem 0; font-size: 0.85rem;"><i class="fas fa-euro-sign"></i> 950 €/mois</div>
+                <div class="offer-footer">
+                    <span style="color: #8b5cf6; font-size: 0.8rem;"><i class="far fa-clock"></i> il y a 8 jours</span>
+                    <div class="action-group">
+                        <a href="offer.html?id=6" class="btn btn-small">Voir</a>
+                        <a href="admin/offer-form.html?id=6" class="btn btn-small btn-outline" title="Modifier"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-small" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.2);" title="Supprimer" onclick="return confirm('Supprimer cette offre ?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <ul class="pagination" aria-label="Pagination">
+            <li><a href="#" aria-label="Page précédente"><i class="fas fa-chevron-left"></i></a></li>
+            <li><a href="#" class="active" aria-current="page">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#" aria-label="Page suivante"><i class="fas fa-chevron-right"></i></a></li>
+        </ul>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 StageLab - Tous droits réservés - <a href="mentions.html">Mentions légales</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
