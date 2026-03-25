@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Développeur Full Stack - StageLab</title>
+    <meta name="description" content="Postulez à l'offre de stage Développeur Full Stack chez TechCorp sur StageLab.">
+    <meta name="keywords" content="stage développeur full stack, TechCorp, PHP, JavaScript, offre stage Paris">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #64748b;
+            padding: 0.3rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .file-upload {
+            border: 2px dashed #e2e8f0;
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .file-upload:hover {
+            border-color: #8b5cf6;
+            background: #faf9ff;
+        }
+        .file-upload input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .file-upload i {
+            font-size: 1.8rem;
+            color: #8b5cf6;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .file-upload p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .file-upload .file-name {
+            color: #8b5cf6;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html">Stage<span>Lab</span></a>
+            </div>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="dashboard-student.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="offers.html" class="active"><i class="fas fa-briefcase"></i> Offres</a></li>
+                    <li><a href="companies.html"><i class="fas fa-building"></i> Entreprises</a></li>
+                    <li><a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a></li>
+                    <li><a href="candidatures.html"><i class="fas fa-file-alt"></i> Candidatures</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profil</a></li>
+                    <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1rem;">
+                <h1 style="font-size: 1.7rem; font-weight: 700;">Développeur Full Stack</h1>
+                <span class="badge badge-info" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">5 candidatures</span>
+            </div>
+            <p style="color: #8b5cf6; margin: 0.4rem 0; font-size: 1rem;">
+                <i class="fas fa-building"></i>
+                <a href="company.html?id=1" style="color: #8b5cf6; text-decoration: none;">TechCorp</a> · Paris
+            </p>
+            <p style="color: #64748b; margin: 1.2rem 0; line-height: 1.7;">
+                Stage de 6 mois, développement d'applications web. Missions : développement de fonctionnalités, correction de bugs, optimisation des performances, participation aux spécifications techniques.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin: 1.5rem 0; background: #f8fafc; padding: 1.2rem; border-radius: 16px;">
+                <div>
+                    <strong style="font-size: 0.85rem; color: #475569;"><i class="fas fa-tag" style="color: #8b5cf6;"></i> Compétences</strong>
+                    <p style="margin-top: 0.3rem; font-size: 0.9rem;">PHP, JavaScript, MySQL, HTML/CSS</p>
+                </div>
+                <div>
+                    <strong style="font-size: 0.85rem; color: #475569;"><i class="fas fa-euro-sign" style="color: #8b5cf6;"></i> Rémunération</strong>
+                    <p style="margin-top: 0.3rem; font-size: 0.9rem;">800 € / mois</p>
+                </div>
+                <div>
+                    <strong style="font-size: 0.85rem; color: #475569;"><i class="far fa-calendar" style="color: #8b5cf6;"></i> Publiée le</strong>
+                    <p style="margin-top: 0.3rem; font-size: 0.9rem;">10/03/2025</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                <button class="btn" onclick="document.getElementById('modalPostuler').classList.add('active')">
+                    <i class="fas fa-paper-plane"></i> Postuler
+                </button>
+                <a href="wishlist.html" class="btn btn-outline">
+                    <i class="fas fa-heart"></i> Ajouter à la wishlist
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modale de candidature -->
+    <div class="modal-overlay" id="modalPostuler" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-paper-plane" style="color: #8b5cf6; margin-right: 0.5rem;"></i> Postuler à cette offre</h3>
+                <button class="modal-close" onclick="document.getElementById('modalPostuler').classList.remove('active')" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Vous postulez pour : <strong style="color: #0f172a;">Développeur Full Stack</strong> chez <strong style="color: #8b5cf6;">TechCorp</strong>
+            </p>
+
+            <form id="formCandidature" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="cv">CV <span style="color: #ef4444;">*</span></label>
+                    <div class="file-upload" id="cvUpload">
+                        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required onchange="updateFileName('cv', 'cvName')">
+                        <i class="fas fa-file-pdf"></i>
+                        <p>Glissez votre CV ici ou cliquez pour sélectionner</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">PDF, DOC, DOCX — max 5 Mo</p>
+                        <p class="file-name" id="cvName" style="display:none;"></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lm">Lettre de motivation <span style="color: #ef4444;">*</span></label>
+                    <textarea class="form-control" id="lm" name="lettre_motivation" rows="6" placeholder="Présentez votre motivation pour ce stage..." required style="min-height: 130px;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn" style="flex: 1; min-width: 140px;">
+                        <i class="fas fa-paper-plane"></i> Envoyer ma candidature
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('modalPostuler').classList.remove('active')" style="flex: 1; min-width: 100px;">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 StageLab - Tous droits réservés - <a href="mentions.html">Mentions légales</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        function updateFileName(inputId, displayId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            if (input.files && input.files[0]) {
+                display.textContent = '✓ ' + input.files[0].name;
+                display.style.display = 'block';
+            }
+        }
+
+        // Fermer la modale
+        document.getElementById('modalPostuler').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+
+        // Soumettre la candidature
+        document.getElementById('formCandidature').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const lm = document.getElementById('lm').value.trim();
+            const cv = document.getElementById('cv').files[0];
+            if (!cv) { alert('Veuillez joindre votre CV.'); return; }
+            if (!lm) { alert('Veuillez rédiger votre lettre de motivation.'); return; }
+            // appel API backend
+            alert('Candidature envoyée avec succès !');
+            document.getElementById('modalPostuler').classList.remove('active');
+        });
+    </script>
+</body>
+</html>
