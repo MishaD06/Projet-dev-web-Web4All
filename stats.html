@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques des offres - StageLab</title>
+    <meta name="description" content="Indicateurs clés et statistiques des offres de stage sur StageLab.">
+    <meta name="keywords" content="statistiques, indicateurs, offres stage, candidatures">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .carousel-outer {
+            position: relative;
+            padding: 0 48px;
+        }
+        .carousel-window {
+            overflow: hidden;
+            border-radius: 16px;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-slide {
+            min-width: 100%;
+            flex-shrink: 0;
+            padding: 0.25rem;
+            box-sizing: border-box;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #475569;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            z-index: 10;
+            transition: all 0.2s;
+        }
+        .carousel-btn:hover  { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+        .carousel-btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .carousel-btn.prev { left: 0; }
+        .carousel-btn.next { right: 0; }
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.45rem;
+            margin-top: 1.2rem;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: none;
+            padding: 0;
+        }
+        .carousel-dot.active { background: #8b5cf6; width: 22px; border-radius: 4px; }
+        .carousel-counter { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; }
+        .carousel-counter strong { color: #8b5cf6; }
+        .stat-big-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .stat-big-card:hover { border-color: #8b5cf6; box-shadow: 0 8px 24px rgba(139,92,246,0.1); }
+        .stat-big-card .icon {
+            width: 64px; height: 64px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.2rem; font-size: 1.5rem;
+        }
+        .stat-big-card .value { font-size: 3rem; font-weight: 700; color: #8b5cf6; margin: 0.5rem 0; line-height: 1.1; }
+        .stat-big-card .label { font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem; }
+        .stat-big-card .desc { font-size: 0.875rem; color: #94a3b8; line-height: 1.5; }
+        .bar-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; }
+        .bar-label { font-size: 0.85rem; color: #475569; min-width: 70px; text-align: right; }
+        .bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); border-radius: 6px; width: 0; transition: width 1s ease; }
+        .bar-fill.animated { width: var(--w); }
+        .bar-count { font-size: 0.875rem; font-weight: 600; color: #8b5cf6; min-width: 36px; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo"><a href="index.html">Stage<span>Lab</span></a></div>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="dashboard-admin.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="offers.html"><i class="fas fa-briefcase"></i> Offres</a></li>
+                    <li><a href="companies.html"><i class="fas fa-building"></i> Entreprises</a></li>
+                    <li><a href="admin/users.html"><i class="fas fa-users-cog"></i> Utilisateurs</a></li>
+                    <li><a href="stats.html" class="active"><i class="fas fa-chart-bar"></i> Statistiques</a></li>
+                    <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>Statistiques des offres</h1>
+            <a href="dashboard-admin.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+        </div>
+
+        <!-- carousel -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar" style="color: #8b5cf6;"></i> Indicateurs clés</h3>
+            </div>
+
+            <div class="carousel-outer">
+                <button class="carousel-btn prev" id="btnPrev" onclick="moveCarousel(-1)" aria-label="Précédent">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next" id="btnNext" onclick="moveCarousel(1)" aria-label="Suivant">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <div class="carousel-window">
+                    <div class="carousel-track" id="carouselTrack">
+                        <div class="carousel-slide">
+                            <div class="stat-big-card">
+                                <div class="icon" style="background:#f5f3ff;"><i class="fas fa-briefcase" style="color:#8b5cf6;"></i></div>
+                                <div class="value">1 247</div>
+                                <div class="label">Offres disponibles</div>
+                                <div class="desc">Nombre total d'offres en base de données</div>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="stat-big-card">
+                                <div class="icon" style="background:#fef3c7;"><i class="fas fa-paper-plane" style="color:#f59e0b;"></i></div>
+                                <div class="value">3,8</div>
+                                <div class="label">Candidatures / offre</div>
+                                <div class="desc">Nombre moyen de candidatures par offre disponible</div>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="stat-big-card">
+                                <div class="icon" style="background:#fce7f3;"><i class="fas fa-heart" style="color:#ec4899;"></i></div>
+                                <div class="value">48</div>
+                                <div class="label">Top wishlist</div>
+                                <div class="desc">Développeur Full Stack — TechCorp<br>l'offre la plus ajoutée en wishlist</div>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="stat-big-card">
+                                <div class="icon" style="background:#dcfce7;"><i class="fas fa-calendar-alt" style="color:#10b981;"></i></div>
+                                <div class="value">5,2</div>
+                                <div class="label">Mois en moyenne</div>
+                                <div class="desc">Durée moyenne des stages proposés sur la plateforme</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-dots">
+                <button class="carousel-dot active" onclick="goToSlide(0)" aria-label="Carte 1"></button>
+                <button class="carousel-dot" onclick="goToSlide(1)" aria-label="Carte 2"></button>
+                <button class="carousel-dot" onclick="goToSlide(2)" aria-label="Carte 3"></button>
+                <button class="carousel-dot" onclick="goToSlide(3)" aria-label="Carte 4"></button>
+            </div>
+            <div class="carousel-counter" id="carouselCounter">Carte <strong>1</strong> sur 4</div>
+        </div>
+
+        <!-- repartition par durée -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-calendar-alt" style="color:#8b5cf6;"></i> Répartition par durée de stage</h3>
+            </div>
+            <div id="barChart" style="padding: 0.5rem 0;">
+                <div class="bar-row"><span class="bar-label">2 mois</span><div class="bar-track"><div class="bar-fill" style="--w:15%;"></div></div><span class="bar-count">187</span></div>
+                <div class="bar-row"><span class="bar-label">3 mois</span><div class="bar-track"><div class="bar-fill" style="--w:35%;"></div></div><span class="bar-count">436</span></div>
+                <div class="bar-row"><span class="bar-label">4 mois</span><div class="bar-track"><div class="bar-fill" style="--w:20%;"></div></div><span class="bar-count">249</span></div>
+                <div class="bar-row"><span class="bar-label">5 mois</span><div class="bar-track"><div class="bar-fill" style="--w:18%;"></div></div><span class="bar-count">224</span></div>
+                <div class="bar-row"><span class="bar-label">6 mois</span><div class="bar-track"><div class="bar-fill" style="--w:72%;"></div></div><span class="bar-count">898</span></div>
+                <div class="bar-row"><span class="bar-label">+ 6 mois</span><div class="bar-track"><div class="bar-fill" style="--w:8%;"></div></div><span class="bar-count">100</span></div>
+            </div>
+        </div>
+
+        <!-- top wishlist -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-heart" style="color:#ec4899;"></i> Top 5 offres les plus souhaitées</h3>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>#</th><th>Offre</th><th>Entreprise</th><th>Wishlist</th><th>Candidatures</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="badge badge-warning">1</span></td><td style="font-weight:500;">Développeur Full Stack</td><td>TechCorp</td><td><i class="fas fa-heart" style="color:#ec4899;"></i> 48</td><td>12</td></tr>
+                        <tr><td><span class="badge badge-info">2</span></td><td style="font-weight:500;">Data Analyst</td><td>DataSys</td><td><i class="fas fa-heart" style="color:#ec4899;"></i> 35</td><td>9</td></tr>
+                        <tr><td><span class="badge" style="background:#94a3b8;color:white;">3</span></td><td style="font-weight:500;">Cybersécurité</td><td>SecureIT</td><td><i class="fas fa-heart" style="color:#ec4899;"></i> 28</td><td>6</td></tr>
+                        <tr><td><span class="badge" style="background:#94a3b8;color:white;">4</span></td><td style="font-weight:500;">UX Designer</td><td>DesignStudio</td><td><i class="fas fa-heart" style="color:#ec4899;"></i> 22</td><td>5</td></tr>
+                        <tr><td><span class="badge" style="background:#94a3b8;color:white;">5</span></td><td style="font-weight:500;">Chef de projet</td><td>Projex</td><td><i class="fas fa-heart" style="color:#ec4899;"></i> 19</td><td>7</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 StageLab - Tous droits réservés - <a href="mentions.html">Mentions légales</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const TOTAL = 4;
+        let current = 0;
+        const track   = document.getElementById('carouselTrack');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const counter = document.getElementById('carouselCounter');
+        const dots    = document.querySelectorAll('.carousel-dot');
+
+        function updateCarousel() {
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dots.forEach(function(d, i) { d.classList.toggle('active', i === current); });
+            counter.innerHTML = 'Carte <strong>' + (current + 1) + '</strong> sur ' + TOTAL;
+            btnPrev.disabled = (current === 0);
+            btnNext.disabled = (current === TOTAL - 1);
+        }
+
+        function moveCarousel(dir) {
+            current = Math.max(0, Math.min(current + dir, TOTAL - 1));
+            updateCarousel();
+        }
+
+        function goToSlide(n) {
+            current = n;
+            updateCarousel();
+        }
+
+        /* Swipe tactile */
+        var startX = 0;
+        track.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
+        track.addEventListener('touchend',   function(e) {
+            var dx = e.changedTouches[0].clientX - startX;
+            if (Math.abs(dx) > 40) moveCarousel(dx < 0 ? 1 : -1);
+        }, { passive: true });
+
+        /* Flèches clavier */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft')  moveCarousel(-1);
+            if (e.key === 'ArrowRight') moveCarousel(1);
+        });
+
+        updateCarousel();
+
+        /* Animation barres */
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.querySelectorAll('.bar-fill').forEach(function(b) { b.classList.add('animated'); });
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(document.getElementById('barChart'));
+    </script>
+</body>
+</html>
