@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord pilote - StageLab</title>
+    <meta name="description" content="Suivez les candidatures de vos étudiants sur StageLab.">
+    <meta name="keywords" content="dashboard pilote, promotion, candidatures étudiants">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .student-detail {
+            display: none;
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        .student-detail.active { display: block; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html">Stage<span>Lab</span></a>
+            </div>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="dashboard-pilote.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="offers.html"><i class="fas fa-briefcase"></i> Offres</a></li>
+                    <li><a href="companies.html"><i class="fas fa-building"></i> Entreprises</a></li>
+                    <li><a href="admin/users.html"><i class="fas fa-users"></i> Étudiants</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profil</a></li>
+                    <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1 style="margin-bottom: 0.2rem;">Bonjour, <span style="color: #8b5cf6;">Mme Dubois</span></h1>
+        <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.95rem;">Suivi de votre promotion</p>
+
+        <!-- Statistiques -->
+        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <div class="stat-number">28</div>
+                <div class="stat-label">Étudiants</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="stat-number">47</div>
+                <div class="stat-label">Candidatures</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Stages trouvés</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <div class="stat-number">3</div>
+                <div class="stat-label">En recherche</div>
+            </div>
+        </div>
+
+        <!-- Liste des étudiants avec leurs candidatures -->
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h3><i class="fas fa-user-graduate" style="margin-right: 0.5rem; color: #8b5cf6;"></i> Mes étudiants</h3>
+                <a href="admin/users.html" class="btn btn-small">Gérer</a>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 500;">Thomas Martin</td>
+                            <td style="color: #64748b;">thomas.martin@cesi.fr</td>
+                            <td><span class="badge badge-warning">En recherche</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="toggleDetail('detail1', this)">
+                                    <i class="fas fa-chevron-down"></i> Candidatures
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding: 0;">
+                                <div class="student-detail" id="detail1">
+                                    <p style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Candidatures de Thomas Martin :</p>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 10px; padding: 0.6rem 0.8rem; border: 1px solid #f1f5f9; flex-wrap: wrap; gap: 0.5rem;">
+                                            <div>
+                                                <div style="font-weight: 500; font-size: 0.9rem;">Développeur Web — TechCorp</div>
+                                                <div style="font-size: 0.8rem; color: #64748b;">05/03/2025</div>
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                <span class="badge badge-warning">En attente</span>
+                                                <a href="#" style="font-size: 0.8rem; color: #ef4444;"><i class="fas fa-file-pdf"></i> CV</a>
+                                                <a href="#" style="font-size: 0.8rem; color: #8b5cf6;"><i class="fas fa-file-alt"></i> LM</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 500;">Julie Bernard</td>
+                            <td style="color: #64748b;">julie.bernard@cesi.fr</td>
+                            <td><span class="badge badge-success">Stage trouvé</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="toggleDetail('detail2', this)">
+                                    <i class="fas fa-chevron-down"></i> Candidatures
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding: 0;">
+                                <div class="student-detail" id="detail2">
+                                    <p style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Candidatures de Julie Bernard :</p>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 10px; padding: 0.6rem 0.8rem; border: 1px solid #f1f5f9; flex-wrap: wrap; gap: 0.5rem;">
+                                            <div>
+                                                <div style="font-weight: 500; font-size: 0.9rem;">Data Analyst — DataSys</div>
+                                                <div style="font-size: 0.8rem; color: #64748b;">01/03/2025</div>
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                <span class="badge badge-success">Acceptée</span>
+                                                <a href="#" style="font-size: 0.8rem; color: #ef4444;"><i class="fas fa-file-pdf"></i> CV</a>
+                                                <a href="#" style="font-size: 0.8rem; color: #8b5cf6;"><i class="fas fa-file-alt"></i> LM</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 500;">Alexandre Petit</td>
+                            <td style="color: #64748b;">alexandre.petit@cesi.fr</td>
+                            <td><span class="badge badge-info">Pas de candidature</span></td>
+                            <td>
+                                <button class="btn btn-small btn-outline" disabled style="opacity: 0.5;">Aucune</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 StageLab - Tous droits réservés - <a href="mentions.html">Mentions légales</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        function toggleDetail(id, btn) {
+            const el = document.getElementById(id);
+            const isOpen = el.classList.toggle('active');
+            btn.innerHTML = isOpen
+                ? '<i class="fas fa-chevron-up"></i> Réduire'
+                : '<i class="fas fa-chevron-down"></i> Candidatures';
+        }
+    </script>
+</body>
+</html>
