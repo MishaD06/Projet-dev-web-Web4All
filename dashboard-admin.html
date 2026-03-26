@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord administrateur - StageLab</title>
+    <meta name="description" content="Administration complète de StageLab.">
+    <meta name="keywords" content="administration, gestion utilisateurs, offres, entreprises">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html">Stage<span>Lab</span></a>
+            </div>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="dashboard-admin.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="offers.html"><i class="fas fa-briefcase"></i> Offres</a></li>
+                    <li><a href="companies.html"><i class="fas fa-building"></i> Entreprises</a></li>
+                    <li><a href="admin/users.html"><i class="fas fa-users-cog"></i> Utilisateurs</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user-cog"></i> Profil</a></li>
+                    <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1 style="margin-bottom: 1.5rem;">Administration</h1>
+
+        <!-- Navigation rapide -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <a href="admin/users.html" style="text-decoration: none;">
+                <div class="card" style="text-align: center; padding: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-users" style="font-size: 2.5rem; color: #8b5cf6; margin-bottom: 0.8rem; display: block;"></i>
+                    <h3 style="color: #0f172a; font-size: 1rem; margin-bottom: 0.3rem;">Utilisateurs</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">Gérer les comptes</p>
+                </div>
+            </a>
+            <a href="admin/company-form.html" style="text-decoration: none;">
+                <div class="card" style="text-align: center; padding: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-building" style="font-size: 2.5rem; color: #f59e0b; margin-bottom: 0.8rem; display: block;"></i>
+                    <h3 style="color: #0f172a; font-size: 1rem; margin-bottom: 0.3rem;">Entreprises</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">Ajouter / modifier</p>
+                </div>
+            </a>
+            <a href="admin/offer-form.html" style="text-decoration: none;">
+                <div class="card" style="text-align: center; padding: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-briefcase" style="font-size: 2.5rem; color: #10b981; margin-bottom: 0.8rem; display: block;"></i>
+                    <h3 style="color: #0f172a; font-size: 1rem; margin-bottom: 0.3rem;">Offres</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">Créer une offre</p>
+                </div>
+            </a>
+            <a href="stats.html" style="text-decoration: none;">
+                <div class="card" style="text-align: center; padding: 1.5rem; cursor: pointer;">
+                    <i class="fas fa-chart-bar" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 0.8rem; display: block;"></i>
+                    <h3 style="color: #0f172a; font-size: 1rem; margin-bottom: 0.3rem;">Statistiques</h3>
+                    <p style="color: #64748b; font-size: 0.85rem;">Voir les indicateurs</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Dernières activités -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-history" style="margin-right: 0.5rem; color: #8b5cf6;"></i> Dernières activités</h3>
+            </div>
+            <ul style="list-style: none;">
+                <li style="padding: 0.7rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem;">
+                    <i class="fas fa-user-plus" style="color: #8b5cf6; margin-right: 0.6rem; width: 16px;"></i>
+                    Nouvel utilisateur : Sophie Lefèvre (étudiant)
+                    <span style="color: #94a3b8; font-size: 0.8rem; display: block; margin-left: 22px;">Il y a 2 heures</span>
+                </li>
+                <li style="padding: 0.7rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem;">
+                    <i class="fas fa-building" style="color: #f59e0b; margin-right: 0.6rem; width: 16px;"></i>
+                    Entreprise "TechCorp" modifiée
+                    <span style="color: #94a3b8; font-size: 0.8rem; display: block; margin-left: 22px;">Il y a 5 heures</span>
+                </li>
+                <li style="padding: 0.7rem 0; font-size: 0.9rem;">
+                    <i class="fas fa-briefcase" style="color: #10b981; margin-right: 0.6rem; width: 16px;"></i>
+                    Nouvelle offre : "Développeur Full Stack"
+                    <span style="color: #94a3b8; font-size: 0.8rem; display: block; margin-left: 22px;">Hier</span>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 StageLab - Tous droits réservés - <a href="mentions.html">Mentions légales</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
