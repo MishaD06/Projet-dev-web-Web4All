@@ -1,0 +1,33 @@
+# Gitignore
+
+# Dépendances PHP
+/vendor/
+
+# Config et sécurité
+# Certificats SSL locaux
+*.pem
+# Configuration locale et environnement
+.env
+config.local.php
+
+# Gestion des uploads
+# On ignore tout le contenu des dossiers d'uploads sans distinction de type
+# Pour les CV
+public/uploads/*
+
+# Pour les KBIS
+storage/upload/company_requests/*
+
+# On garde les dossiers vides sur Git grâce au .gitkeep
+!public/uploads/.gitkeep
+!storage/upload/company_requests/.gitkeep
+
+# Fichiers générés et SEO
+sitemap.xml
+robots.txt
+
+# Fichiers IDE
+.DS_Store
+.vscode/
+.idea/
+*.log
