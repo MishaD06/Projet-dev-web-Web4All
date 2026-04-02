@@ -10,6 +10,7 @@ use App\Models\Application;
 use App\Models\User;
 use App\Models\CompanyAccount;
 use App\Models\PiloteAccount;
+use App\Models\StudentAccount;
 use App\Middleware\AuthMiddleware;
 
 class HomeController
@@ -23,6 +24,8 @@ class HomeController
         $user = Auth::user();
 
         if ($user['role'] === 'visiteur') {
+            $request = null;
+
             // 1. On cherche d'abord si c'est une entreprise
             $caModel = new CompanyAccount();
             $request = $caModel->findByUser((int)$user['id']);
@@ -33,7 +36,13 @@ class HomeController
                 $request = $paModel->findByUser((int)$user['id']);
             }
 
-            // On affiche la page d'attente avec les données de la requête (entreprise ou pilote)
+            // 3.Si on ne trouve toujours rien, on cherche si c'est un étudiant
+            if (!$request) {
+                $saModel = new StudentAccount();
+                $request = $saModel->findByUser((int)$user['id']);
+            }
+
+            // On affiche la page d'attente avec les données de la requête (entreprise, pilote ou étudiant)
             Template::render('auth/waiting_validation.html.twig', ['account' => $request]);
             return;
         }

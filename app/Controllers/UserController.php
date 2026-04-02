@@ -6,6 +6,7 @@ use App\Core\Auth;
 use App\Core\Template;
 use App\Models\User;
 use App\Models\Application;
+use App\Models\StudentAccount; 
 use App\Middleware\AuthMiddleware;
 
 class UserController
@@ -49,7 +50,7 @@ class UserController
             $stats = [
                 'nb_etudiants'    => $this->userModel->countStudentsByPilote($piloteId),
                 'nb_candidatures' => $appModel->countByPilote($piloteId),
-                'nb_stages'       => $appModel->countStagesFoundByPilote($piloteId),
+                'nb_stages'        => $appModel->countStagesFoundByPilote($piloteId),
                 'nb_recherche'    => $this->userModel->countStudentsSearchingByPilote($piloteId)
             ];
         }
@@ -100,7 +101,6 @@ class UserController
             $data['pilote_id'] = Auth::id(); 
         }
         
-        // Passé null car c'est une création
         $errors = User::validateData($data, true, null);
         
         if ($errors) {
@@ -118,7 +118,6 @@ class UserController
             header('Location: /admin/utilisateurs?created=1');
             exit;
         } else {
-            // Sécurité si l'insertion échoue malgré la validation
             Template::render('users/form.html.twig', [
                 'user' => null, 
                 'pilotes' => $this->userModel->getPilotes(), 
@@ -161,7 +160,6 @@ class UserController
             $data['pilote_id'] = Auth::id();
         }
         
-        // Passé (int)$id pour autoriser l'email actuel de l'utilisateur
         $errors = User::validateData($data, false, (int)$id);
         
         if ($errors) {
@@ -193,6 +191,50 @@ class UserController
         AuthMiddleware::verifyCsrf();
         $this->userModel->delete((int)$id);
         header('Location: /admin/utilisateurs?deleted=1');
+        exit;
+    }
+
+    /**
+     * Action pour approuver l'inscription d'un étudiant
+     */
+    public function approveStudent(): void
+    {
+        AuthMiddleware::requireRole('admin', 'pilote');
+        // AuthMiddleware::verifyCsrf();
+
+        $studentUserId = $_POST['user_id'] ?? null;
+
+        if ($studentUserId) {
+            $saModel = new StudentAccount();
+            $saModel->approve((int)$studentUserId);
+            $this->userModel->update((int)$studentUserId, ['role' => 'etudiant']);
+
+            header('Location: /admin/comptes-etudiants?success=student_approved');
+        } else {
+            header('Location: /admin/comptes-etudiants?error=missing_id');
+        }
+        exit;
+    }
+
+    /**
+     * Action pour refuser l'inscription d'un étudiant
+     */
+    public function rejectStudent(): void
+    {
+        AuthMiddleware::requireRole('admin', 'pilote');
+        // AuthMiddleware::verifyCsrf();
+
+        $studentUserId = $_POST['user_id'] ?? null;
+
+        if ($studentUserId) {
+            $saModel = new StudentAccount();
+            // Au lieu de supprimer l'utilisateur, on marque simplement la demande comme refusée
+            $saModel->reject((int)$studentUserId);
+
+            header('Location: /admin/comptes-etudiants?success=student_rejected');
+        } else {
+            header('Location: /admin/comptes-etudiants?error=missing_id');
+        }
         exit;
     }
 

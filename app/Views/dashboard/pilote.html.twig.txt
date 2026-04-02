@@ -1,0 +1,130 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'dashboard' %}
+{% block title %}Tableau de bord pilote{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:.2rem;">Bonjour, <span style="color:var(--violet);">{{ auth_user.prenom }} {{ auth_user.nom }}</span></h1>
+<p style="color:var(--ink-muted);margin-bottom:1.5rem;font-size:.95rem;">Suivi de votre promotion</p>
+
+<div class="stats-grid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="stat-card" style="background:linear-gradient(135deg,#1a1208,#2d1f0e);">
+        <div class="stat-number">{{ stats.etudiants }}</div>
+        <div class="stat-label">Étudiants</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c4de6,#5538cc);">
+        <div class="stat-number">{{ stats.candidatures }}</div>
+        <div class="stat-label">Candidatures</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#2e7d59,#1d5c40);">
+        <div class="stat-number">{{ stats.acceptees }}</div>
+        <div class="stat-label">Stages trouvés</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#c0392b,#a93226);">
+        <div class="stat-number">{{ stats.en_recherche }}</div>
+        <div class="stat-label">En recherche</div>
+    </div>
+</div>
+
+{# NOUVELLE SECTION : Raccourcis de gestion #}
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem;">
+    <a href="/admin/comptes-etudiants" style="text-decoration:none;">
+        <div class="card" style="text-align:center; padding:1.2rem; cursor:pointer; border:1px solid var(--violet); background:rgba(108, 77, 230, 0.05);">
+            <i class="fas fa-user-graduate" style="font-size:2rem; color:var(--violet); margin-bottom:.5rem; display:block;"></i>
+            <p style="font-weight:600; color:var(--ink); margin:0;">Validations Étudiants</p>
+            <p style="color:var(--ink-muted); font-size:.8rem; margin:0;">Approuver les nouveaux comptes</p>
+        </div>
+    </a>
+    
+</div>
+
+<div class="card" style="margin-top:1.5rem;">
+    <div class="card-header">
+        <h3><i class="fas fa-user-graduate" style="color:var(--violet);margin-right:.5rem;"></i> Mes étudiants</h3>
+        <a href="/admin/utilisateurs" class="btn btn-small">Gérer</a>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th>Candidatures</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                {% set cands = cand_by_student[etudiant.id] ?? [] %}
+                <tr>
+                    <td data-label="Nom" style="font-weight:500;">{{ etudiant.prenom }} {{ etudiant.nom }}</td>
+                    <td data-label="Email" style="color:var(--ink-muted);">{{ etudiant.email }}</td>
+                    <td data-label="Statut">
+                        {% set accepted = cands|filter(c => c.statut == 'acceptee') %}
+                        {% if accepted|length > 0 %}
+                            <span class="badge badge-success">Stage trouvé</span>
+                        {% elseif cands|length > 0 %}
+                            <span class="badge badge-warning">En recherche</span>
+                        {% else %}
+                            <span class="badge badge-info">Pas de candidature</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Candidatures">
+                        {% if cands|length > 0 %}
+                        <button class="btn btn-small" onclick="toggleDetail('detail_{{ etudiant.id }}', this)">
+                            <i class="fas fa-chevron-down"></i> {{ cands|length }} candidature{{ cands|length > 1 ? 's' : '' }}
+                        </button>
+                        {% else %}
+                        <span style="color:var(--ink-muted);font-size:.85rem;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if cands|length > 0 %}
+                <tr id="detail_{{ etudiant.id }}" style="display:none; border-top: none;">
+                    <td colspan="4" style="padding:.5rem 1rem 1rem; display:block; text-align:left; border-bottom:none;">
+                        <div style="background:var(--cream);border-radius:var(--radius-md);padding:1rem;">
+                            {% for c in cands %}
+                            <div style="display:flex;justify-content:space-between;align-items:center;background:white;border-radius:10px;padding:.6rem .8rem;margin-bottom:.4rem;border:1px solid var(--cream-3);flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <div style="font-weight:500;font-size:.9rem;">{{ c.offre_titre }} — {{ c.entreprise_nom }}</div>
+                                    <div style="font-size:.8rem;color:var(--ink-muted);">{{ c.date_candidature|date('d/m/Y') }}</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                                    {% if c.statut == 'acceptee' %}
+                                        <span class="badge badge-success">Acceptée</span>
+                                    {% elseif c.statut == 'refusee' %}
+                                        <span class="badge badge-danger">Refusée</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">En attente</span>
+                                    {% endif %}
+                                    <a href="/uploads/{{ c.cv_path }}" target="_blank" style="font-size:.8rem;color:var(--red);"><i class="fas fa-file-pdf"></i> CV</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+                {% else %}
+                <tr><td colspan="4" style="text-align:center;color:var(--ink-muted);padding:1.5rem;display:block;">Aucun étudiant assigné.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleDetail(id, btn) {
+    var row = document.getElementById(id);
+    var open = row.style.display === 'none';
+    
+    var displayMode = window.innerWidth <= 767 ? 'block' : 'table-row';
+    row.style.display = open ? displayMode : 'none';
+    
+    btn.innerHTML = open
+        ? '<i class="fas fa-chevron-up"></i> Réduire'
+        : '<i class="fas fa-chevron-down"></i> ' + btn.innerHTML.split('</i>')[1].trim();
+}
+</script>
+{% endblock %}

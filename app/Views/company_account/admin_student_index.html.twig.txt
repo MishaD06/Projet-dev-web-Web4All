@@ -1,0 +1,120 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Validation Étudiants{% endblock %}
+
+{% block content %}
+<style>
+    @media (max-width: 767px) {
+        .table-responsive tr {
+            margin-bottom: 2rem !important; 
+            box-shadow: var(--shadow-md) !important; 
+            border: none !important; 
+        }
+    }
+</style>
+
+<div class="container">
+    
+    {# Page header #}
+    <div class="page-header">
+        <h1 style="display: flex; align-items: center; gap: 15px;">
+            <span style="color: var(--violet);"><i class="fas fa-user-graduate"></i></span> 
+            Demandes d'inscription Étudiants
+        </h1>
+        
+        <a href="/dashboard" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> 
+            <span>Retour Dashboard</span>
+        </a>
+    </div>
+
+    <div class="table-responsive" style="overflow: visible;">
+        <table style="background: transparent;">
+            <thead>
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Contact</th>
+                    {% if auth_user.role == 'admin' %}
+                        <th>Pilote Référent</th>
+                    {% endif %}
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr class="card" {% if req.statut != 'pending' %}style="opacity: 0.7;"{% endif %}>
+                    
+                    <td data-label="Étudiant">
+                        <strong style="color: var(--violet); font-size: 1.05rem;">
+                            {{ req.nom|upper }} {{ req.prenom }}
+                        </strong>
+                    </td>
+                    
+                    <td data-label="Contact">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span><i class="fas fa-envelope" style="width: 18px; color: var(--ink-muted);"></i> {{ req.email }}</span>
+                            <span><i class="fas fa-phone" style="width: 18px; color: var(--ink-muted);"></i> {{ req.telephone ?: 'Non renseigné' }}</span>
+                        </div>
+                    </td>
+
+                    {% if auth_user.role == 'admin' %}
+                    <td data-label="Pilote Référent">
+                        <span style="color: var(--ink-muted);">
+                            <i class="fas fa-user-tie" style="font-size: 0.8rem; margin-right: 5px;"></i>
+                            {{ req.pilote_nom }}
+                        </span>
+                    </td>
+                    {% endif %}
+                    
+                    <td data-label="Statut">
+                        {% if req.statut == 'pending' %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% elseif req.statut == 'approved' %}
+                            <span class="badge badge-success">Accepté</span>
+                        {% else %}
+                            <span class="badge badge-danger">Refusé</span>
+                        {% endif %}
+                    </td>
+
+                    <td data-label="Date">
+                        {{ req.date_demande|date('d/m/Y') }}
+                    </td>
+                    
+                    <td data-label="Actions" style="text-align: right;">
+                        {% if req.statut == 'pending' %}
+                            <div class="action-group" style="justify-content: flex-end; gap: 10px;">
+                                
+                                {# Formulaire VALIDER #}
+                                <form action="/admin/utilisateurs/approuver-etudiant" method="POST" onsubmit="return confirm('Valider ce compte étudiant ?');">
+                                    <input type="hidden" name="user_id" value="{{ req.user_id }}">
+                                    <button type="submit" class="btn btn-small" style="background: var(--green); border-color: var(--green); color: white;">Valider</button>
+                                </form>
+
+                                {# Formulaire REFUSER #}
+                                <form action="/admin/utilisateurs/refuser-etudiant" method="POST" onsubmit="return confirm('Refuser ce compte étudiant ?');">
+                                    <input type="hidden" name="user_id" value="{{ req.user_id }}">
+                                    <button type="submit" class="btn btn-small btn-danger">Refuser</button>
+                                </form>
+                                
+                            </div>
+                        {% else %}
+                            <small style="color: var(--ink-muted); font-style: italic;">
+                                Traité le {{ req.date_reponse ? req.date_reponse|date('d/m/Y') : req.date_demande|date('d/m/Y') }}
+                            </small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if auth_user.role == 'admin' %}6{% else %}5{% endif %}" class="empty-state" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-user-slash" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        <p>Aucune demande d'étudiant pour le moment.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

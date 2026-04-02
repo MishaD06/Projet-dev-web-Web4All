@@ -7,6 +7,7 @@ use App\Core\Template;
 use App\Models\User;
 use App\Models\CompanyAccount;
 use App\Models\PiloteAccount;
+use App\Models\StudentAccount;
 use App\Middleware\AuthMiddleware;
 
 class AuthController
@@ -85,7 +86,7 @@ class AuthController
             $data['telephone'] = null;
         }
 
-        // On passe l'ID actuel (eviter le bug de l'email déjà utilisé)
+        // On passe l'ID actuel
         $errors = User::validateData($data, false, (int)$currentUserId);
 
         if ($errors) {
@@ -119,7 +120,8 @@ class AuthController
     public function register(): void
     {
         $userModel = new User();
-        $paModel = new PiloteAccount(); // Instance pour la nouvelle table
+        $paModel = new PiloteAccount();
+        $saModel = new StudentAccount(); // Instance pour la table student_account
         
         $requestedRole = $_POST['role'] ?? 'etudiant';
 
@@ -133,8 +135,8 @@ class AuthController
             'pilote_id'  => $_POST['pilote_id'] ?: null,
         ];
 
-        // Logique pilote : On force le rôle visiteur pour le sas d'attente
-        if ($requestedRole === 'pilote') {
+        // On force le rôle visiteur pour les pilotes et les étudiants (en attente d'approbation)
+        if ($requestedRole === 'pilote' || $requestedRole === 'etudiant') {
             $data['role'] = 'visiteur';
         }
 
@@ -143,6 +145,11 @@ class AuthController
 
         if ($data['password'] !== $passwordConfirm) {
             $errors[] = "Les deux mots de passe ne correspondent pas.";
+        }
+
+        // Vérification : Un étudiant doit obligatoirement choisir un pilote
+        if ($requestedRole === 'etudiant' && empty($data['pilote_id'])) {
+            $errors[] = "Vous devez choisir un pilote référent pour valider votre inscription.";
         }
 
         if ($errors) {
@@ -161,12 +168,18 @@ class AuthController
             $user = $userModel->find($userId);
             Auth::set($user);
 
-            // Si c'est un pilote, on crée l'entrée dans la nouvelle table de validation
+            // Création de la demande selon le rôle
             if ($requestedRole === 'pilote') {
                 $paModel->createRequest((int)$userId);
                 header('Location: /inscription/en-attente');
-            } else {
-                // Pour les autres rôles, redirection classique
+            } 
+            elseif ($requestedRole === 'etudiant') {
+                // On enregistre la demande dans student_account avec le pilote choisi
+                $saModel->createRequest((int)$userId, (int)$data['pilote_id']);
+                header('Location: /inscription/en-attente');
+            }
+            else {
+                // Pour les autres rôles (si existants sans validation)
                 header('Location: /connexion?registered=1');
             }
             exit;

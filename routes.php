@@ -16,7 +16,7 @@ $router->get( '/inscription',              'AuthController', 'registerForm');
 $router->post('/inscription',              'AuthController', 'register');
 $router->get( '/inscription/entreprise',   'AuthController', 'registerCompanyForm');
 $router->post('/inscription/entreprise',   'AuthController', 'registerCompany');
-$router->get( '/inscription/en-attente',   'AuthController', 'pending'); // NOUVELLE ROUTE
+$router->get( '/inscription/en-attente',   'AuthController', 'pending'); 
 $router->get( '/compte/supprimer',         'AuthController', 'deleteAccountForm');
 $router->post('/compte/supprimer',         'AuthController', 'deleteAccount');
 
@@ -31,13 +31,17 @@ $router->get( '/profil', 'HomeController', 'profile');
 $router->post('/profil', 'HomeController', 'updateProfile');
 
 // Gestion des users admins et pilotes
-$router->get( '/admin/utilisateurs',           'UserController', 'index');
-$router->get( '/admin/utilisateurs/creer',     'UserController', 'create');
-$router->post('/admin/utilisateurs/creer',     'UserController', 'store');
-$router->get( '/admin/utilisateurs/{id}',      'UserController', 'show');
+$router->get( '/admin/utilisateurs',            'UserController', 'index');
+$router->get( '/admin/utilisateurs/creer',      'UserController', 'create');
+$router->post('/admin/utilisateurs/creer',      'UserController', 'store');
+$router->get( '/admin/utilisateurs/{id}',       'UserController', 'show');
 $router->get( '/admin/utilisateurs/{id}/modifier',  'UserController', 'edit');
 $router->post('/admin/utilisateurs/{id}/modifier',  'UserController', 'update');
 $router->post('/admin/utilisateurs/{id}/supprimer', 'UserController', 'destroy');
+
+// Actions étudiants
+$router->post('/admin/utilisateurs/approuver-etudiant', 'UserController', 'approveStudent'); 
+$router->post('/admin/utilisateurs/refuser-etudiant',   'UserController', 'rejectStudent'); 
 
 // Admin : Demandes Inscriptions Entreprises
 $router->get( '/admin/comptes-entreprises',                'CompanyAccountController', 'adminIndex');
@@ -46,10 +50,13 @@ $router->post('/admin/comptes-entreprises/{id}/approuver', 'CompanyAccountContro
 $router->post('/admin/comptes-entreprises/{id}/refuser',   'CompanyAccountController', 'adminReject');
 $router->get( '/admin/documents/{filename}',               'CompanyAccountController', 'viewDocument');
 
-// ── Admin : Demandes Inscriptions Pilotes (NOUVEAU) ──────────
+// Admin : Demandes Inscriptions Pilotes
 $router->get( '/admin/comptes-pilotes',                    'CompanyAccountController', 'adminPiloteIndex');
 $router->post('/admin/validations/pilotes/{id}/approuver', 'CompanyAccountController', 'adminPiloteApprove');
 $router->post('/admin/validations/pilotes/{id}/refuser',   'CompanyAccountController', 'adminPiloteReject');
+
+// Admin : Demandes Inscriptions Étudiants
+$router->get( '/admin/comptes-etudiants',                  'CompanyAccountController', 'adminStudentIndex');
 
 // Entreprises (Annuaire & Gestion Admin)
 $router->get( '/entreprises',                  'CompanyController', 'index');

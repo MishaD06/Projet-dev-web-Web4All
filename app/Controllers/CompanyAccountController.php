@@ -7,7 +7,8 @@ use App\Core\Template;
 use App\Models\CompanyAccount;
 use App\Models\Company;
 use App\Models\User;
-use App\Models\PiloteAccount; // Ajout du modèle Pilote
+use App\Models\PiloteAccount; 
+use App\Models\StudentAccount;
 use App\Middleware\AuthMiddleware;
 
 class CompanyAccountController
@@ -185,5 +186,26 @@ class CompanyAccountController
 
         header('Location: /admin/comptes-pilotes?rejected=1');
         exit;
+    }
+
+    /**
+     * Liste des demandes étudiants (Accessible Admin et Pilote)
+     */
+    public function adminStudentIndex(): void
+    {
+        AuthMiddleware::requireRole('admin', 'pilote');
+
+        $saModel = new StudentAccount();
+
+        // Si c'est un pilote, il ne voit que ses étudiants. Si c'est l'admin, il voit tout.
+        if (Auth::role() === 'admin') {
+            $requests = $saModel->getAllPending();
+        } else {
+            $requests = $saModel->getPendingByPilote((int)Auth::id());
+        }
+
+        Template::render('company_account/admin_student_index.html.twig', [
+            'requests' => $requests
+        ]);
     }
 }

@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'dashboard' %}
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:1.5rem;">Administration</h1>
+
+
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1rem;">
+    <a href="/admin/utilisateurs" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-users" style="font-size:2.5rem;color:var(--violet);margin-bottom:.8rem;display:block;"></i>
+            <div style="font-weight:600;font-size:2rem;color:var(--ink);font-family:'Playfair Display',serif;">{{ stats.users }}</div>
+            <p style="color:var(--ink-muted);font-size:.85rem;margin-top:.3rem;">Utilisateurs</p>
+        </div>
+    </a>
+    <a href="/offres" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-briefcase" style="font-size:2.5rem;color:var(--gold);margin-bottom:.8rem;display:block;"></i>
+            <div style="font-weight:600;font-size:2rem;color:var(--ink);font-family:'Playfair Display',serif;">{{ stats.offres }}</div>
+            <p style="color:var(--ink-muted);font-size:.85rem;margin-top:.3rem;">Offres</p>
+        </div>
+    </a>
+    <a href="/entreprises" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-building" style="font-size:2.5rem;color:var(--green);margin-bottom:.8rem;display:block;"></i>
+            <div style="font-weight:600;font-size:2rem;color:var(--ink);font-family:'Playfair Display',serif;">{{ stats.entreprises }}</div>
+            <p style="color:var(--ink-muted);font-size:.85rem;margin-top:.3rem;">Entreprises</p>
+        </div>
+    </a>
+    <a href="/stats" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-chart-bar" style="font-size:2.5rem;color:var(--red);margin-bottom:.8rem;display:block;"></i>
+            <div style="font-weight:600;font-size:2rem;color:var(--ink);font-family:'Playfair Display',serif;">{{ stats.candidatures }}</div>
+            <p style="color:var(--ink-muted);font-size:.85rem;margin-top:.3rem;">Candidatures</p>
+        </div>
+    </a>
+</div>
+
+{# DEUXIÈME LIGNE : LES 3 APPROBATIONS (Alignées sur la largeur des 4 du dessus) #}
+<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; margin-bottom:1.5rem;">
+    <a href="/admin/comptes-entreprises" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-building" style="font-size:2.5rem;color:var(--amber);margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Comptes entreprises</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Valider les demandes</p>
+        </div>
+    </a>
+    <a href="/admin/comptes-pilotes" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-user-tie" style="font-size:2.5rem;color:#3498db;margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Comptes pilotes</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Valider les demandes</p>
+        </div>
+    </a>
+    <a href="/admin/comptes-etudiants" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;height:100%;">
+            <i class="fas fa-user-graduate" style="font-size:2.5rem;color:var(--violet);margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Comptes étudiants</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Valider les demandes</p>
+        </div>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-history" style="color:var(--violet);margin-right:.5rem;"></i> Dernières activités</h3>
+    </div>
+    {% if recent_activity is empty %}
+    <p style="color:var(--ink-muted);text-align:center;padding:1rem;">Aucune activité récente.</p>
+    {% else %}
+    <ul style="list-style:none;">
+        {% for activity in recent_activity %}
+        <li style="padding:.7rem 0;border-bottom:1px solid var(--cream-2);font-size:.9rem;">
+            <i class="fas fa-paper-plane" style="color:var(--violet);margin-right:.6rem;width:16px;"></i>
+            {{ activity.label }}
+            <span style="color:var(--ink-muted);font-size:.8rem;display:block;margin-left:22px;">
+                {{ activity.date|date('d/m/Y H:i') }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}
