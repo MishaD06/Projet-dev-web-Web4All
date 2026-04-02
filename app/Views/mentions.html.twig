@@ -1,0 +1,78 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'mentions' %}
+{% block title %}Mentions Légales{% endblock %}
+{% block description %}Mentions légales et politique de confidentialité du site StageLab.{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Mentions Légales</h1>
+    <p style="color:var(--ink-muted); margin-top: 0.5rem;">En vigueur au {{ "now"|date("d/m/Y") }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-building" style="color:var(--violet);margin-right:0.5rem;"></i> 1. Éditeur du site</h3>
+    </div>
+    <p>Le site <strong>StageLab</strong> est édité dans le cadre d'un projet pédagogique par l'agence (fictive) <strong>Web4All</strong> pour le compte du client <strong>CESI</strong>.</p>
+    <ul style="list-style-type: none; padding-left: 0; margin-top: 1rem; color: var(--ink-soft);">
+        <li style="margin-bottom: 0.3rem;"><strong>Raison sociale :</strong> Web4All (Projet Étudiant)</li>
+        <li style="margin-bottom: 0.3rem;"><strong>Adresse :</strong> Campus CESI Nice, 13 Avenue Simone Veil, 06200 Nice</li>
+        <li style="margin-bottom: 0.3rem;"><strong>Téléphone :</strong> 04 93 63 66 78</li>
+        <li><strong>Email de contact :</strong> <a href="mailto:misha.dopre@viacesi.fr" style="color:var(--violet);">misha.dopre@viacesi.fr</a></li>
+    </ul>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-user-tie" style="color:var(--violet);margin-right:0.5rem;"></i> 2. Directeur de la publication</h3>
+    </div>
+    <p style="color: var(--ink-soft);"><strong>Directeur(s) de la publication :</strong> Misha Dopre - Gabriel Butaud - Robin Petrequin - Elliot Cazajous Rey</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-server" style="color:var(--violet);margin-right:0.5rem;"></i> 3. Hébergement</h3>
+    </div>
+    <p style="color: var(--ink-soft);">Ce site est hébergé par :</p>
+    <ul style="list-style-type: none; padding-left: 0; margin-top: 1rem; color: var(--ink-soft);">
+        <li style="margin-bottom: 0.3rem;"><strong>Raison sociale :</strong> Hébergé localement sur un serveur Apache</li>
+        <li><strong>Site web :</strong> https://stagelab.local</li>
+    </ul>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-copyright" style="color:var(--violet);margin-right:0.5rem;"></i> 4. Propriété intellectuelle</h3>
+    </div>
+    <p style="color: var(--ink-soft); margin-bottom: 0.8rem;">
+        L'ensemble de ce site relève de la législation française et internationale sur le droit d'auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.
+    </p>
+    <p style="color: var(--ink-soft);">
+        La reproduction de tout ou partie de ce site sur un support électronique ou papier quel qu'il soit est formellement interdite sauf autorisation expresse du directeur de la publication. Les marques citées sur ce site sont déposées par les sociétés qui en sont propriétaires.
+    </p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-user-shield" style="color:var(--violet);margin-right:0.5rem;"></i> 5. Protection des données personnelles (RGPD)</h3>
+    </div>
+    <p style="color: var(--ink-soft); margin-bottom: 0.8rem;">
+        Les informations recueillies sur ce site sont enregistrées dans un fichier informatisé par <strong>Web4All</strong> pour la gestion des comptes utilisateurs, des offres de stage et des candidatures. Elles sont conservées pendant la durée stricte de la scolarité de l'étudiant ou de la relation partenaire avec l'entreprise.
+    </p>
+    <p style="color: var(--ink-soft); margin-bottom: 0.8rem;">
+        Ces données sont destinées exclusivement aux administrateurs de la plateforme, aux pilotes de promotion (pour le suivi pédagogique) et aux entreprises (lorsqu'un étudiant postule à une de leurs offres). Aucune donnée n'est revendue à des tiers.
+    </p>
+    <p style="color: var(--ink-soft);">
+        Conformément à la loi « informatique et libertés » et au RGPD, vous pouvez exercer votre droit d'accès aux données vous concernant, les faire rectifier, ou demander leur suppression en contactant : <strong><a href="mailto:[votre-email-rgpd@viacesi.fr]" style="color:var(--violet);">misha.dopre@viacesi.fr</a></strong>.
+    </p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-cookie-bite" style="color:var(--violet);margin-right:0.5rem;"></i> 6. Utilisation des cookies</h3>
+    </div>
+    <p style="color: var(--ink-soft);">
+        Le site StageLab utilise uniquement des cookies techniques strictement nécessaires à son fonctionnement (notamment pour le maintien de la session utilisateur sécurisée lors de la navigation). Ces cookies ne tracent pas le comportement de l'utilisateur à des fins publicitaires et ne nécessitent donc pas le recueil de votre consentement préalable, conformément aux recommandations de la CNIL.
+    </p>
+</div>
+{% endblock %}
