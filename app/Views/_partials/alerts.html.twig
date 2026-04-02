@@ -1,0 +1,20 @@
+{% if errors is defined and errors %}
+<div style="background:var(--red-lt);color:var(--red);padding:.9rem 1.1rem;border-radius:var(--radius-md);margin-bottom:1.2rem;">
+    <strong><i class="fas fa-exclamation-circle"></i> Erreur{{ errors|length > 1 ? 's' : '' }} :</strong>
+    <ul style="margin:.4rem 0 0 1.2rem;">
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if success is defined and success %}
+<div style="background:var(--green-lt);color:var(--green);padding:.9rem 1.1rem;border-radius:var(--radius-md);margin-bottom:1.2rem;">
+    <i class="fas fa-check-circle"></i> {{ success }}
+</div>
+{% endif %}
+
+{% if warning is defined and warning %}
+<div style="background:var(--amber-lt);color:var(--amber);padding:.9rem 1.1rem;border-radius:var(--radius-md);margin-bottom:1.2rem;">
+    <i class="fas fa-exclamation-triangle"></i> {{ warning }}
+</div>
+{% endif %}

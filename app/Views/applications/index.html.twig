@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'applications' %}
+{% block title %}Mes candidatures{% endblock %}
+{% block description %}Suivez l'état de vos candidatures sur StageLab.{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:1.2rem;">Mes candidatures</h1>
+
+{% if app.request.query.get('success') %}
+<div style="background:var(--green-lt);color:var(--green);padding:.8rem 1rem;border-radius:var(--radius-md);margin-bottom:1rem;">
+    <i class="fas fa-check-circle"></i> Votre candidature a bien été envoyée !
+</div>
+{% endif %}
+
+{% if candidatures is empty %}
+<div class="card">
+    <div class="empty-state">
+        <i class="fas fa-file-alt"></i>
+        <p>Vous n'avez pas encore postulé à une offre.</p>
+        <a href="/offres" class="btn"><i class="fas fa-search"></i> Découvrir les offres</a>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Offre</th>
+                    <th>Entreprise</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Documents</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in candidatures %}
+                <tr>
+                    <td>
+                        <a href="/offres/{{ c.offre_id }}" style="color:var(--violet);text-decoration:none;font-weight:500;">
+                            {{ c.offre_titre }}
+                        </a>
+                    </td>
+                    <td>{{ c.entreprise_nom }}</td>
+                    <td style="white-space:nowrap;color:var(--ink-muted);">{{ c.date_candidature|date('d/m/Y') }}</td>
+                    <td>
+                        {% if c.statut == 'acceptee' %}
+                            <span class="badge badge-success">Acceptée</span>
+                        {% elseif c.statut == 'refusee' %}
+                            <span class="badge badge-danger">Refusée</span>
+                        {% else %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                            <a href="/uploads/{{ c.cv_path }}" target="_blank"
+                               class="btn btn-small btn-outline" style="font-size:.75rem;padding:.2rem .6rem;">
+                                <i class="fas fa-file-pdf" style="color:var(--red);"></i> CV
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

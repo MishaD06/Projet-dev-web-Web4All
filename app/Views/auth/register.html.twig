@@ -1,0 +1,115 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Inscription{% endblock %}
+{% block description %}Créez votre compte StageLab pour accéder aux offres de stage.{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:500px;margin:1rem auto;">
+    <div class="card-header">
+        <h2><i class="fas fa-user-plus" style="color:var(--violet);margin-right:.5rem;"></i> Créer un compte</h2>
+    </div>
+
+    {% if errors is defined and errors %}
+    <div style="background:var(--red-lt);color:var(--red);padding:.9rem 1.1rem;border-radius:var(--radius-md);margin-bottom:1.2rem;">
+        <strong><i class="fas fa-exclamation-circle"></i> Erreur{{ errors|length > 1 ? 's' : '' }} :</strong>
+        <ul style="margin:.4rem 0 0 1.2rem;">
+            {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/inscription" novalidate>
+        {{ csrf_field()|raw }}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label for="nom">Nom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="nom" name="nom"
+                       value="{{ old.nom ?? '' }}" required maxlength="50" placeholder="Dupont">
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="prenom" name="prenom"
+                       value="{{ old.prenom ?? '' }}" required maxlength="50" placeholder="Jean">
+            </div>
+        </div>
+
+        {# --- AJOUT DU CHAMP TÉLÉPHONE --- #}
+        <div class="form-group">
+            <label for="telephone">Téléphone <span style="color:var(--red)">*</span></label>
+            <input type="tel" class="form-control" id="telephone" name="telephone"
+                   value="{{ old.telephone ?? '' }}" required placeholder="ex: 0612345678" autocomplete="tel">
+            <small style="color:var(--ink-muted);font-size:.8rem;margin-top:.3rem;display:block;">
+                Obligatoire pour les étudiants et les pilotes.
+            </small>
+        </div>
+        {# -------------------------------- #}
+
+        <div class="form-group">
+            <label for="email">Email <span style="color:var(--red)">*</span></label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ old.email ?? '' }}" required placeholder="jean.dupont@cesi.fr" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+            <label for="role">Je suis <span style="color:var(--red)">*</span></label>
+            <select class="form-control" id="role" name="role" required onchange="togglePilote(this.value)">
+                <option value="etudiant" {% if (old.role ?? 'etudiant') == 'etudiant' %}selected{% endif %}>Étudiant</option>
+                <option value="pilote"   {% if (old.role ?? '') == 'pilote' %}selected{% endif %}>Pilote de promotion</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="piloteGroup" style="display:{% if (old.role ?? 'etudiant') == 'etudiant' %}block{% else %}none{% endif %};">
+            <label for="pilote_id">Pilote responsable</label>
+            <select class="form-control" id="pilote_id" name="pilote_id">
+                <option value="">Non renseigné</option>
+                {% for p in pilotes %}
+                <option value="{{ p.id }}" {% if (old.pilote_id ?? 0) == p.id %}selected{% endif %}>
+                    {{ p.prenom }} {{ p.nom }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mot de passe <span style="color:var(--red)">*</span></label>
+            <input type="password" class="form-control" id="password" name="password"
+                   required minlength="8" placeholder="Minimum 8 caractères" autocomplete="new-password">
+            <small style="color:var(--ink-muted);font-size:.8rem;margin-top:.3rem;display:block;">
+                8 caractères minimum, au moins une majuscule et un chiffre
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirm">Confirmer le mot de passe <span style="color:var(--red)">*</span></label>
+            <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                   required placeholder="Répéter le mot de passe" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn" style="width:100%;margin-top:.5rem;">
+            <i class="fas fa-user-plus"></i> Créer mon compte
+        </button>
+
+        <p style="text-align:center;margin-top:1.2rem;font-size:.9rem;color:var(--ink-muted);">
+            Déjà un compte ? <a href="/connexion" style="color:var(--violet);font-weight:500;">Se connecter</a>
+        </p>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center;">
+            <p style="font-weight: 600; margin-bottom: 0.5rem;">Vous êtes une entreprise ?</p>
+            <p style="font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 1rem;">
+                Publiez vos offres et gérez les candidatures de nos étudiants.
+            </p>
+            <a href="/inscription/entreprise" class="btn btn-outline" style="width: 100%; border-color: var(--violet); color: var(--violet);">
+                <i class="fas fa-building"></i> Inscription Recruteur
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePilote(role) {
+    document.getElementById('piloteGroup').style.display = role === 'etudiant' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

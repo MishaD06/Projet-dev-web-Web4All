@@ -1,0 +1,106 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Créer un compte entreprise{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:600px;margin:2rem auto;">
+    <div class="card-header">
+        <h2><i class="fas fa-building" style="color:var(--violet);margin-right:.5rem;"></i> Inscription Entreprise</h2>
+    </div>
+
+    <div style="background:var(--violet-lt);color:var(--violet);padding:.9rem 1rem;border-radius:var(--radius-md);margin-bottom:1.5rem;font-size:.875rem;line-height:1.6;">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Processus de validation :</strong> Remplissez les informations de votre entreprise. 
+        Un administrateur vérifiera votre profil sous 24h avant d'activer vos accès recruteur.
+    </div>
+
+    {% if errors is defined and errors %}
+    <div style="background:var(--red-lt);color:var(--red);padding:.9rem 1.1rem;border-radius:var(--radius-md);margin-bottom:1.2rem;">
+        <strong><i class="fas fa-exclamation-circle"></i> Erreur{{ errors|length > 1 ? 's' : '' }} :</strong>
+        <ul style="margin:.4rem 0 0 1.2rem;">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/inscription/entreprise" enctype="multipart/form-data">
+        {{ csrf_field()|raw }}
+
+        <h3 style="font-size:1.1rem; margin-bottom:1rem; color:var(--violet); border-bottom: 1px solid var(--violet-lt); padding-bottom: 0.5rem;">
+            <i class="fas fa-id-card"></i> Informations de l'entreprise
+        </h3>
+
+        <div class="form-group">
+            <label for="company_name">Nom de l'entreprise <span style="color:var(--red)">*</span></label>
+            <input type="text" class="form-control" id="company_name" name="company_name" 
+                   value="{{ old.company_name ?? '' }}" required placeholder="Ex: Tech Solutions SAS">
+        </div>
+
+        {# MODIFICATION : Grille à deux colonnes pour Localisation et Téléphone #}
+        <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+                <label for="company_location">Siège social / Ville <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="company_location" name="company_location" 
+                       value="{{ old.company_location ?? '' }}" required placeholder="Ex: Lyon, France">
+            </div>
+            <div class="form-group">
+                <label for="company_phone">Téléphone <span style="color:var(--red)">*</span></label>
+                <input type="tel" class="form-control" id="company_phone" name="company_phone" 
+                       value="{{ old.company_phone ?? '' }}" required placeholder="01 23 45 67 89">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="company_description">Description des activités <span style="color:var(--red)">*</span></label>
+            <textarea class="form-control" id="company_description" name="company_description" 
+                      rows="3" required placeholder="Décrivez votre secteur d'activité, vos valeurs...">{{ old.company_description ?? '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="document">Justificatif d'existence (Kbis, SIRET...) <span style="color:var(--red)">*</span></label>
+            <input type="file" name="document" id="document" accept=".pdf" class="form-control" required>
+            <small style="color:var(--ink-muted);font-size:.8rem;margin-top:.3rem;display:block;">Format PDF uniquement (Max 5Mo)</small>
+        </div>
+
+        <h3 style="font-size:1.1rem; margin:2rem 0 1rem 0; color:var(--violet); border-bottom: 1px solid var(--violet-lt); padding-bottom: 0.5rem;">
+            <i class="fas fa-user-tie"></i> Responsable du compte
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label for="nom">Nom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="nom" name="nom"
+                       value="{{ old.nom ?? '' }}" required placeholder="Dupont">
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="prenom" name="prenom"
+                       value="{{ old.prenom ?? '' }}" required placeholder="Jean">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email professionnel <span style="color:var(--red)">*</span></label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ old.email ?? '' }}" required placeholder="contact@entreprise.fr">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label for="password">Mot de passe <span style="color:var(--red)">*</span></label>
+                <input type="password" class="form-control" id="password" name="password"
+                       required minlength="8" placeholder="8 caractères min.">
+            </div>
+            <div class="form-group">
+                <label for="password_confirm">Confirmation <span style="color:var(--red)">*</span></label>
+                <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width:100%; margin-top:1rem; padding: 0.8rem;">
+            <i class="fas fa-paper-plane"></i> Soumettre ma demande d'inscription
+        </button>
+
+        <p style="text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--ink-muted);">
+            Déjà inscrit ? <a href="/connexion" style="color:var(--violet);font-weight:600;">Se connecter</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

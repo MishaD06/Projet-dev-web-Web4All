@@ -1,0 +1,39 @@
+{% if paginator.last_page > 1 %}
+<ul class="pagination" aria-label="Pagination" style="display:flex; list-style:none; justify-content:center; gap:5px; margin-top:2rem;">
+    
+    {# Bouton Précédent #}
+    <li>
+        <a href="{{ base_url }}?page={{ paginator.current_page > 1 ? paginator.current_page - 1 : 1 }}{% for k,v in (filters ?? {}) %}{% if v is not empty %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
+           {% if paginator.current_page == 1 %}style="opacity:.4;pointer-events:none;"{% endif %}
+           class="btn btn-small btn-outline"
+           aria-label="Page précédente">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+    </li>
+
+    {# Logique des numéros de page #}
+    {% for p in 1..paginator.last_page %}
+        {% if p == 1 or p == paginator.last_page or (p >= paginator.current_page - 2 and p <= paginator.current_page + 2) %}
+            <li>
+                <a href="{{ base_url }}?page={{ p }}{% for k,v in (filters ?? {}) %}{% if v is not empty %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
+                   class="btn btn-small {% if p == paginator.current_page %}active{% else %}btn-outline{% endif %}"
+                   {% if p == paginator.current_page %}aria-current="page" style="background:var(--violet); color:white;"{% endif %}>
+                    {{ p }}
+                </a>
+            </li>
+        {% elseif p == paginator.current_page - 3 or p == paginator.current_page + 3 %}
+            <li><span style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--ink-muted);">…</span></li>
+        {% endif %}
+    {% endfor %}
+
+    {# Bouton Suivant #}
+    <li>
+        <a href="{{ base_url }}?page={{ paginator.current_page < paginator.last_page ? paginator.current_page + 1 : paginator.last_page }}{% for k,v in (filters ?? {}) %}{% if v is not empty %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
+           {% if paginator.current_page == paginator.last_page %}style="opacity:.4;pointer-events:none;"{% endif %}
+           class="btn btn-small btn-outline"
+           aria-label="Page suivante">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </li>
+</ul>
+{% endif %}
