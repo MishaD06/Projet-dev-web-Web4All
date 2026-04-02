@@ -1,0 +1,61 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Modifier la fiche entreprise{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h2>Modifier les informations de l'entreprise</h2>
+    
+    {# 
+       On utilise la route POST simple qui est stable dans ton routes.php.
+       L'ID de l'entreprise est passé via un champ caché pour que le contrôleur 
+       sache quelle fiche modifier, même si l'URL est générique.
+    #}
+    <form action="/entreprise/modifier" method="POST" style="margin-top:1.5rem;">
+        {{ csrf_field()|raw }}
+        
+        {# CHAMP CRUCIAL POUR LE FIX : Permet de transmettre l'ID de l'entreprise à modifier #}
+        <input type="hidden" name="company_id" value="{{ company.id }}">
+
+        {% if error %}
+            <div class="alert alert-danger" style="color: red; margin-bottom: 1rem; border: 1px solid red; padding: 10px; border-radius: 5px;">
+                {{ error }}
+            </div>
+        {% endif %}
+        
+        <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nom de l'entreprise</label>
+            <input type="text" name="nom" value="{{ company.nom }}" class="form-control" style="width: 100%; padding: 8px;" required>
+        </div>
+        
+        <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Localisation</label>
+            <input type="text" name="localite" value="{{ company.localite }}" class="form-control" style="width: 100%; padding: 8px;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Email de contact</label>
+            <input type="email" name="email_contact" value="{{ company.email_contact }}" class="form-control" style="width: 100%; padding: 8px;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Téléphone de contact</label>
+            <input type="text" name="telephone_contact" value="{{ company.telephone_contact }}" class="form-control" style="width: 100%; padding: 8px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Description</label>
+            <textarea name="description" class="form-control" rows="5" style="width: 100%; padding: 8px;" required>{{ company.description }}</textarea>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 10px; align-items: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 20px; cursor: pointer;">
+                Enregistrer les modifications
+            </button>
+            
+            <a href="/entreprises/{{ company.id }}" class="btn btn-secondary" style="text-decoration: none; color: #666;">
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

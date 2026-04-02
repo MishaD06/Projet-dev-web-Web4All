@@ -1,0 +1,66 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Comptes entreprises{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-building" style="color:var(--violet)"></i> Demandes de comptes entreprises</h1>
+</div>
+
+{# CORRECTION : On vérifie accounts.items et non accounts.data #}
+{% if accounts.items is empty %}
+<div class="card">
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: var(--violet-lt); margin-bottom: 1rem;"></i>
+        <p>Aucune demande d'inscription n'a été trouvée pour le moment.</p>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Entreprise</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# CORRECTION : On boucle sur accounts.items #}
+                {% for a in accounts.items %}
+                <tr>
+                    <td data-label="Entreprise" style="font-weight:600; color:var(--violet);">
+                        {{ a.temp_company_name ?: 'Non renseigné' }}
+                    </td>
+                    <td data-label="Contact">{{ a.user_prenom }} {{ a.user_nom }}</td>
+                    <td data-label="Email" style="color:var(--ink-muted);">{{ a.email }}</td>
+                    <td data-label="Statut">
+                        {% if a.statut == 'approved' %}
+                            <span class="badge badge-success"><i class="fas fa-check"></i> Approuvé</span>
+                        {% elseif a.statut == 'rejected' %}
+                            <span class="badge badge-danger"><i class="fas fa-times"></i> Refusé</span>
+                        {% else %}
+                            <span class="badge badge-warning"><i class="fas fa-clock"></i> En attente</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Date" style="color:var(--ink-muted);">{{ a.date_demande|date('d/m/Y') }}</td>
+                    <td data-label="Action">
+                        <a href="/admin/comptes-entreprises/{{ a.id }}" class="btn btn-small">
+                            <i class="fas fa-search"></i> Examiner
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# On passe bien l'objet accounts au paginateur #}
+{% include '_partials/pagination.html.twig' with {paginator: accounts, base_url: '/admin/comptes-entreprises'} %}
+
+{% endif %}
+{% endblock %}

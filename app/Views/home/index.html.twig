@@ -1,0 +1,90 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'home' %}
+{% block title %}Trouvez votre stage idéal{% endblock %}
+
+{# Macro corrigée pour n'extraire que le nom des compétences #}
+{% macro display_skills(items) %}
+    {% if items is iterable %}
+        {% set names = [] %}
+        {% for item in items %}
+            {% if item is iterable %}
+                {# On cherche la clé 'nom' ou 'label' dans l'objet compétence #}
+                {% set names = names|merge([item.nom ?? item.label ?? '']) %}
+            {% else %}
+                {% set names = names|merge([item]) %}
+            {% endif %}
+        {% endfor %}
+        {{ names|filter(n => n != '')|join(', ') }}
+    {% else %}
+        {{ items }}
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+<section class="hero">
+    <h1>Le stage qui <em>vous</em> correspond</h1>
+    <p>Rejoignez StageLab et accédez à des centaines d'offres de stage</p>
+    <form class="hero-search" action="/offres" method="get">
+        <input type="text" name="q" placeholder="Rechercher une offre...">
+        <button type="submit"><i class="fas fa-search"></i> Rechercher</button>
+    </form>
+</section>
+
+<section>
+    <div class="stats-grid">
+        {# ... tes stats ... #}
+        <div class="stat-card" style="background:linear-gradient(135deg,#1a1208,#2d1f0e);">
+            <div class="stat-number">{{ stats.offres }}</div>
+            <div class="stat-label">offres disponibles</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#c9964a,#a57830);">
+            <div class="stat-number">{{ stats.entreprises }}</div>
+            <div class="stat-label">entreprises</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#6c4de6,#5538cc);">
+            <div class="stat-number">{{ stats.etudiants }}</div>
+            <div class="stat-label">étudiants</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#2e7d59,#1d5c40);">
+            <div class="stat-number">{{ stats.candidatures }}</div>
+            <div class="stat-label">candidatures</div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="section-header">
+        <h2>Dernières offres</h2>
+        <a href="/offres">Voir tout <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="offers-grid">
+        {% for offer in recent_offers %}
+        <div class="offer-card">
+            <div class="offer-title">{{ offer.titre }}</div>
+            <div class="offer-company"><i class="fas fa-building"></i> {{ offer.entreprise_nom }}</div>
+            
+            {% if offer.skills %}
+            <div style="color:var(--ink-muted);font-size:.85rem;margin:.4rem 0;">
+                <i class="fas fa-tag"></i> 
+                {# Appel de la macro corrigée #}
+                {{ _self.display_skills(offer.skills) }}
+            </div>
+            {% endif %}
+            
+            <div class="offer-footer">
+                <span style="color:var(--violet);font-size:.85rem;">
+                    <i class="fas fa-euro-sign"></i> {{ offer.remuneration|number_format(0,'.','\u00a0') }} €/mois
+                </span>
+                <a href="/offres/{{ offer.id }}" class="btn btn-small">Consulter</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section style="text-align:center;margin:3rem 0;">
+    <h2 style="font-size:1.7rem;margin-bottom:.8rem;">Prêt à commencer ?</h2>
+    <p style="color:var(--ink-muted);margin-bottom:1.5rem;">Créez votre compte et postulez en quelques clics</p>
+    <a href="/connexion" class="btn" style="font-size:1rem;padding:.9rem 2.2rem;">Commencer</a>
+</section>
+{% endblock %}

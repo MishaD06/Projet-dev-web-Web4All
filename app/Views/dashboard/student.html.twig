@@ -1,0 +1,92 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'dashboard' %}
+{% block title %}Mon tableau de bord{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:.3rem;">Bonjour, <span style="color:var(--violet);">{{ auth_user.prenom }}</span> 👋</h1>
+<p style="color:var(--ink-muted);margin-bottom:1.5rem;font-size:.95rem;">Bienvenue sur votre tableau de bord</p>
+
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="stat-card" style="background:linear-gradient(135deg,#1a1208,#2d1f0e);">
+        <div class="stat-number">{{ candidatures|length }}</div>
+        <div class="stat-label">Candidatures</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c4de6,#5538cc);">
+        <div class="stat-number">{{ candidatures|filter(c => c.statut == 'en_attente')|length }}</div>
+        <div class="stat-label">En attente</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#2e7d59,#1d5c40);">
+        <div class="stat-number">{{ candidatures|filter(c => c.statut == 'acceptee')|length }}</div>
+        <div class="stat-label">Acceptées</div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr;gap:1.2rem;margin-top:1.5rem;">
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-clock" style="color:var(--violet);margin-right:.5rem;"></i> Offres récentes</h3>
+            <a href="/offres" class="btn btn-small">Voir tout</a>
+        </div>
+        <ul style="list-style:none;">
+            {% for offer in recent_offers %}
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--cream-2);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <div style="font-weight:600;font-size:.95rem;">{{ offer.titre }}</div>
+                        <div style="color:var(--ink-muted);font-size:.85rem;">{{ offer.entreprise_nom }}</div>
+                    </div>
+                    <a href="/offres/{{ offer.id }}" class="btn btn-small btn-outline">Voir</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-paper-plane" style="color:var(--violet);margin-right:.5rem;"></i> Mes candidatures</h3>
+            <a href="/candidatures" class="btn btn-small">Toutes</a>
+        </div>
+        {% if candidatures is empty %}
+        <div class="empty-state" style="padding:1.5rem;">
+            <i class="fas fa-file-alt"></i>
+            <p>Vous n'avez pas encore postulé.</p>
+            <a href="/offres" class="btn btn-small">Découvrir les offres</a>
+        </div>
+        {% else %}
+        <ul style="list-style:none;">
+            {% for c in candidatures|slice(0,5) %}
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--cream-2);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                    <div>
+                        <div style="font-weight:600;font-size:.95rem;">{{ c.offre_titre }}</div>
+                        <div style="color:var(--ink-muted);font-size:.85rem;">{{ c.entreprise_nom }}</div>
+                    </div>
+                    {% if c.statut == 'acceptee' %}
+                        <span class="badge badge-success">Acceptée</span>
+                    {% elseif c.statut == 'refusee' %}
+                        <span class="badge badge-danger">Refusée</span>
+                    {% else %}
+                        <span class="badge badge-warning">En attente</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateGrid() {
+    var grid = document.querySelector('main > div[style*="grid-template-columns"]');
+    if (grid) grid.style.gridTemplateColumns = window.innerWidth >= 768 ? '1fr 1fr' : '1fr';
+}
+updateGrid();
+window.addEventListener('resize', updateGrid);
+</script>
+{% endblock %}

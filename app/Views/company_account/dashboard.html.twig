@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}Espace entreprise{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:.3rem;">Espace entreprise</h1>
+<p style="color:var(--ink-muted);margin-bottom:1.5rem;">
+    Bonjour, {{ auth_user.prenom }} {{ auth_user.nom }} 
+    <span style="color:var(--green); font-weight:bold;">(Compte validé)</span>
+</p>
+
+{# 
+   NOTE : On ne vérifie plus 'account.statut' ici car le CompanyController 
+   ne nous laisse accéder à cette page que si l'entreprise est approuvée.
+#}
+
+<div class="card" style="margin-bottom:2rem; border-left: 5px solid var(--green);">
+    <p style="margin:0;">📍 Entreprise liée : <strong>{{ company.nom }}</strong></p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;">
+    
+    {# Section : Mes offres #}
+    <a href="/entreprise/offres" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;">
+            <i class="fas fa-briefcase" style="font-size:2.5rem;color:var(--violet);margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Mes offres</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Gérer vos annonces</p>
+        </div>
+    </a>
+
+    {# Section : Candidatures #}
+    <a href="/entreprise/candidatures" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;">
+            <i class="fas fa-inbox" style="font-size:2.5rem;color:var(--gold);margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Candidatures</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Accepter / refuser</p>
+        </div>
+    </a>
+
+    {# Section : Ma fiche #}
+    <a href="/entreprise/modifier" style="text-decoration:none;">
+        <div class="card" style="text-align:center;padding:1.5rem;cursor:pointer;">
+            <i class="fas fa-building" style="font-size:2.5rem;color:var(--green);margin-bottom:.8rem;display:block;"></i>
+            <p style="font-weight:600;color:var(--ink);">Ma fiche</p>
+            <p style="color:var(--ink-muted);font-size:.85rem;">Modifier le profil</p>
+        </div>
+    </a>
+
+</div>
+
+{% endblock %}

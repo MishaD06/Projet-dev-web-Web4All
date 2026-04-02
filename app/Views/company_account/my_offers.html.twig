@@ -1,0 +1,27 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Mes Offres{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>Mes offres de stage</h1>
+    <a href="/offres/creer" class="btn btn-primary">Publier une offre</a>
+</div>
+
+{% if offers is empty %}
+    <p>Vous n'avez pas encore publié d'offres.</p>
+{% else %}
+    <div class="grid" style="display:grid; gap:1rem;">
+        {% for offer in offers %}
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong>{{ offer.titre }}</strong><br>
+                    <small style="color:var(--ink-muted)">Publié le {{ offer.date_publication }}</small>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="/offres/{{ offer.id }}/modifier" class="btn btn-sm">Modifier</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

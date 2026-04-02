@@ -1,0 +1,134 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}Examen - {{ account.temp_company_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 style="margin: 0;"><i class="fas fa-search-location" style="color:var(--violet)"></i> Examen : {{ account.temp_company_name }}</h1>
+    <a href="/admin/comptes-entreprises" class="btn btn-secondary btn-outline">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="admin-show-grid">
+    
+    <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #eee;">
+        <div class="card-header" style="background: #f8f9fa; padding: 1.2rem 1.5rem; border-bottom: 1px solid #eee;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: var(--ink);">Informations déclarées</h3>
+        </div>
+        
+        <div class="card-body" style="padding: 1.5rem;">
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-muted); margin-bottom: 0.4rem; font-weight: 600;">Nom commercial</label>
+                <div style="font-weight: 700; font-size: 1.2rem; color: var(--violet);">{{ account.temp_company_name }}</div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-muted); margin-bottom: 0.4rem; font-weight: 600;">Siège / Localisation</label>
+                <div style="font-size: 1rem;"><i class="fas fa-map-marker-alt" style="color: var(--violet); margin-right: 0.5rem;"></i> {{ account.temp_company_location ?: 'Non renseigné' }}</div>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-muted); margin-bottom: 0.6rem; font-weight: 600;">Activités & Description</label>
+                <div style="background: var(--violet-lt); color: var(--violet); padding: 1.2rem; border-radius: var(--radius-md); border-left: 4px solid var(--violet); line-height: 1.6; font-size: 0.95rem;">
+                    {{ account.temp_company_desc|nl2br }}
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
+
+            <h3 style="font-size: 1rem; margin-bottom: 1.2rem; color: var(--ink); font-weight: 600;">Identité du demandeur</h3>
+            <div class="admin-identity-grid">
+                <div>
+                    <label style="display: block; font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 0.2rem;">Nom complet</label>
+                    <div style="font-weight: 500;">{{ account.prenom }} {{ account.nom }}</div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 0.2rem;">Email direct</label>
+                    <div style="font-weight: 500; color: var(--violet);">{{ account.email }}</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2.5rem; padding: 1.5rem; background: #fff; border: 2px dashed #e0e0e0; border-radius: var(--radius-md); text-align: center;">
+                <p style="margin-bottom: 1rem; color: var(--ink-muted); font-size: 0.9rem;">Justificatif d'activité (KBIS / SIRET)</p>
+                {% if account.document_path %}
+                    <a href="/admin/documents/{{ account.document_path }}" target="_blank" class="btn btn-primary" style="background: #333; border: 0; padding: 0.6rem 1.2rem;">
+                        <i class="fas fa-file-pdf"></i> Visualiser le document PDF
+                    </a>
+                {% else %}
+                    <span style="color: var(--red); font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> Aucun document fourni</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden; position: sticky; top: 20px; border: 1px solid #eee; box-shadow: var(--shadow-md);">
+        
+        {% if account.statut == 'pending' %}
+            {# --- MODE DÉCISION (EN ATTENTE) --- #}
+            <div class="card-header" style="background: var(--violet); padding: 1.2rem 1.5rem; border: none;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: white;">Prendre une décision</h3>
+            </div>
+            
+            <div class="card-body" style="padding: 1.5rem;">
+                <form action="/admin/comptes-entreprises/{{ account.id }}/approuver" method="POST" style="margin-bottom: 2rem;">
+                    {{ csrf_field()|raw }}
+                    <div style="background: #f0fdf4; color: #166534; padding: 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.2rem; border: 1px solid #bbf7d0;">
+                        <i class="fas fa-info-circle"></i> En approuvant, une fiche sera créée dans l'annuaire et les accès <strong>Recruteur</strong> seront activés.
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%; padding: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fas fa-check-circle"></i> Approuver le compte
+                    </button>
+                </form>
+
+                <div style="display: flex; align-items: center; margin-bottom: 2rem;">
+                    <div style="flex: 1; height: 1px; background: #eee;"></div>
+                    <div style="padding: 0 15px; font-size: 0.75rem; font-weight: 700; color: #bbb;">OU</div>
+                    <div style="flex: 1; height: 1px; background: #eee;"></div>
+                </div>
+
+                <form action="/admin/comptes-entreprises/{{ account.id }}/refuser" method="POST">
+                    {{ csrf_field()|raw }}
+                    <label for="message" style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--ink);">Motif du refus :</label>
+                    <textarea name="message" id="message" class="form-control" rows="4" style="margin-bottom: 1rem; resize: none; font-size: 0.9rem;" placeholder="Expliquez pourquoi la demande est rejetée..."></textarea>
+                    
+                    <button type="submit" class="btn btn-danger btn-outline" style="width: 100%; padding: 0.8rem; font-weight: 600;" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette demande ?')">
+                        <i class="fas fa-times-circle"></i> Rejeter la demande
+                    </button>
+                </form>
+            </div>
+
+        {% else %}
+            {# --- MODE ARCHIVE (DÉJÀ TRAITÉ) --- #}
+            <div class="card-header" style="background: {{ account.statut == 'approved' ? '#22c55e' : '#ef4444' }}; padding: 1.2rem 1.5rem; border: none;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: white;">
+                    <i class="fas {{ account.statut == 'approved' ? 'fa-check-double' : 'fa-ban' }}"></i> 
+                    Demande {{ account.statut == 'approved' ? 'Validée' : 'Refusée' }}
+                </h3>
+            </div>
+            
+            <div class="card-body" style="padding: 2rem 1.5rem; text-align: center;">
+                <div style="margin-bottom: 1.5rem;">
+                    <span style="display: block; font-size: 0.8rem; color: var(--ink-muted); margin-bottom: 0.3rem;">Date du traitement</span>
+                    <strong style="font-size: 1rem; color: var(--ink);">
+                        {{ account.date_reponse ? account.date_reponse|date('d/m/Y à H:i') : 'Date inconnue' }}
+                    </strong>
+                </div>
+                
+                {% if account.message_admin %}
+                    <div style="padding: 1.2rem; background: #f9fafb; border: 1px solid #f1f5f9; border-radius: 12px; font-style: italic; font-size: 0.9rem; color: #475569; position: relative; margin-top: 1rem;">
+                        <i class="fas fa-quote-left" style="position: absolute; top: -10px; left: 15px; color: #e2e8f0; font-size: 1.5rem;"></i>
+                        "{{ account.message_admin }}"
+                    </div>
+                {% endif %}
+
+                <div style="margin-top: 2.5rem;">
+                    <a href="/admin/comptes-entreprises" class="btn btn-secondary btn-outline" style="width: 100%; border-color: #e2e8f0;">
+                        <i class="fas fa-list"></i> Revenir aux demandes
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
