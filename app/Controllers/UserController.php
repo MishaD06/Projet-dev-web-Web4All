@@ -33,21 +33,17 @@ class UserController
 
         $result = $this->userModel->search($page, $perPage, $q, $role, $piloteId);
         
-        // --- AJOUT : Récupération de la dernière candidature pour chaque étudiant ---
         $appModel = new Application();
         if (isset($result['data'])) {
             foreach ($result['data'] as &$user) {
                 if ($user['role'] === 'etudiant') {
                     $userApps = $appModel->byStudent((int)$user['id']);
-                    // On récupère la candidature la plus récente (index 0 grâce au ORDER BY DESC en SQL)
                     $user['last_application'] = !empty($userApps) ? $userApps[0] : null;
                 }
             }
-            unset($user); // Sécurité pour la référence
+            unset($user); 
         }
-        // --- FIN DE L'AJOUT ---
 
-        // Calcul des stats si c'est un pilote
         $stats = null;
         if (Auth::role() === 'pilote') {
             $stats = [
@@ -104,7 +100,9 @@ class UserController
             $data['pilote_id'] = Auth::id(); 
         }
         
-        $errors = User::validateData($data, true);
+        // Passé null car c'est une création
+        $errors = User::validateData($data, true, null);
+        
         if ($errors) {
             Template::render('users/form.html.twig', [
                 'user' => null, 
@@ -115,9 +113,20 @@ class UserController
             ]);
             return;
         }
-        $this->userModel->create($data);
-        header('Location: /admin/utilisateurs?created=1');
-        exit;
+
+        if ($this->userModel->create($data)) {
+            header('Location: /admin/utilisateurs?created=1');
+            exit;
+        } else {
+            // Sécurité si l'insertion échoue malgré la validation
+            Template::render('users/form.html.twig', [
+                'user' => null, 
+                'pilotes' => $this->userModel->getPilotes(), 
+                'errors' => ["Une erreur est survenue lors de la création de l'utilisateur."], 
+                'old' => $data,
+                'auth_role' => Auth::role()
+            ]);
+        }
     }
 
     public function edit(string $id): void
@@ -152,7 +161,9 @@ class UserController
             $data['pilote_id'] = Auth::id();
         }
         
-        $errors = User::validateData($data, false);
+        // Passé (int)$id pour autoriser l'email actuel de l'utilisateur
+        $errors = User::validateData($data, false, (int)$id);
+        
         if ($errors) {
             Template::render('users/form.html.twig', [
                 'user' => $user, 
@@ -191,23 +202,17 @@ class UserController
             'nom'        => trim($_POST['nom'] ?? ''),
             'prenom'     => trim($_POST['prenom'] ?? ''),
             'email'      => trim($_POST['email'] ?? ''),
-            'telephone'  => trim($_POST['telephone'] ?? ''), // Récupération du champ ajouté
+            'telephone'  => trim($_POST['telephone'] ?? ''),
             'role'       => $_POST['role'] ?? 'etudiant',
             'pilote_id'  => !empty($_POST['pilote_id']) ? (int)$_POST['pilote_id'] : null,
             'password'   => $_POST['password'] ?? '',
         ];
 
-        // Sécurité : Pas de téléphone pour les admins (on force à null)
         if ($data['role'] === 'admin') {
             $data['telephone'] = null;
         }
 
         return $data;
-    }
-
-    private function validate(array $data, bool $passwordRequired): array
-    {
-        return User::validateData($data, $passwordRequired);
     }
 
     private function abort404(): void { http_response_code(404); Template::render('errors/404.html.twig'); }

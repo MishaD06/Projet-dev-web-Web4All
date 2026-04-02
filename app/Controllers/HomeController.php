@@ -122,7 +122,6 @@ class HomeController
     {
         AuthMiddleware::requireAuth();
         
-        // On récupère l'utilisateur frais depuis la BDD pour avoir le téléphone
         $userModel = new User();
         $user = $userModel->find(Auth::id());
 
@@ -136,19 +135,19 @@ class HomeController
         
         $userModel = new User();
         $currentUser = $userModel->find(Auth::id());
+        $currentId = (int)Auth::id(); // Récupération de l'ID pour la validation
         
-        // Préparation des données incluant le téléphone et le rôle pour la validation
         $data = [
             'nom'       => trim($_POST['nom'] ?? ''), 
             'prenom'    => trim($_POST['prenom'] ?? ''), 
             'email'     => trim($_POST['email'] ?? ''),
-            'telephone' => trim($_POST['telephone'] ?? ''), // Récupération du téléphone
+            'telephone' => trim($_POST['telephone'] ?? ''),
             'password'  => $_POST['password'] ?? '',
-            'role'      => $currentUser['role'] // Nécessaire pour la logique de validation du téléphone
+            'role'      => $currentUser['role']
         ];
 
-        // Utilisation de la validation centralisée
-        $errors = User::validateData($data, false);
+        // On passe l'ID actuel en 3ème paramètre
+        $errors = User::validateData($data, false, $currentId);
 
         if ($errors) {
             Template::render('profile.html.twig', [
@@ -159,7 +158,6 @@ class HomeController
             return;
         }
 
-        // Préparation des données pour l'update
         $updateData = [
             'nom'       => $data['nom'],
             'prenom'    => $data['prenom'],
@@ -167,7 +165,6 @@ class HomeController
             'telephone' => $data['telephone']
         ];
 
-        // Sécurité pour les admins (ne pas stocker de téléphone si ton modèle l'interdit)
         if ($currentUser['role'] === 'admin') {
             $updateData['telephone'] = null;
         }
@@ -176,10 +173,8 @@ class HomeController
             $updateData['mot_de_passe'] = password_hash($data['password'], PASSWORD_BCRYPT);
         }
 
-        // Mise à jour via le modèle
-        $userModel->update(Auth::id(), $updateData);
+        $userModel->update($currentId, $updateData);
         
-        // Rafraîchissement de la session
         Auth::refresh();
         
         header('Location: /profil?success=1');

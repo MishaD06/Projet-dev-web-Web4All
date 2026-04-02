@@ -12,10 +12,12 @@ class User extends Model
     /**
      * Valide les données d'un utilisateur (Email, Mot de passe et Téléphone)
      * Centralisé ici pour être utilisé par UserController et AuthController
+     * Ajout du paramètre $userId pour gérer l'unicité de l'email lors de l'update
      */
-    public static function validateData(array $data, bool $passwordRequired = true): array
+    public static function validateData(array $data, bool $passwordRequired = true, ?int $userId = null): array
     {
         $errors = [];
+        $userModel = new self();
 
         if (empty($data['nom']))    $errors[] = 'Le nom est obligatoire.';
         if (empty($data['prenom'])) $errors[] = 'Le prénom est obligatoire.';
@@ -25,10 +27,16 @@ class User extends Model
             $errors[] = "L'adresse email est obligatoire.";
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Le format de l'adresse email est invalide.";
+        } else {
+            // Vérification de l'unicité de l'email
+            $existingUser = $userModel->findByEmail($data['email']);
+            // Si l'email existe et qu'il n'appartient pas à l'utilisateur qu'on est en train de modifier
+            if ($existingUser && ($userId === null || (int)$existingUser['id'] !== $userId)) {
+                $errors[] = "Cette adresse email est déjà utilisée par un autre compte.";
+            }
         }
 
         // Validation Téléphone
-        // On force le rôle en minuscule pour comparer sans erreur de casse
         $role = strtolower($data['role'] ?? '');
         $telephone = $data['telephone'] ?? '';
 
@@ -36,7 +44,6 @@ class User extends Model
             if (empty($telephone)) {
                 $errors[] = 'Le numéro de téléphone est obligatoire.';
             } else {
-                // Regex : exact 10 chiffres (on nettoie les espaces/points éventuels pour le test)
                 $cleanTel = str_replace([' ', '.', '-', '/'], '', $telephone);
                 if (!preg_match('/^[0-9]{10}$/', $cleanTel)) {
                     $errors[] = 'Le format du numéro de téléphone est invalide (10 chiffres attendus).';
@@ -44,7 +51,7 @@ class User extends Model
             }
         }
 
-        // Validation Mot de passe (Regex : 8 carac, 1 Maj, 1 Chiffre)
+        // Validation Mot de passe
         $pwd = $data['password'] ?? '';
         if ($passwordRequired || !empty($pwd)) {
             $regex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/';
@@ -62,10 +69,8 @@ class User extends Model
         $fields = [];
         $params = [];
         foreach ($data as $key => $value) {
-            // On ignore le password en clair
             if ($key === 'password') continue;
             
-            // On autorise explicitement 'mot_de_passe' (le hash) ou tout autre champ
             $fields[] = "$key = ?";
             $params[] = $value;
         }
@@ -99,17 +104,26 @@ class User extends Model
 
     public function create(array $data): int
     {
-        $stmt = $this->db->prepare("INSERT INTO user (nom, prenom, email, telephone, mot_de_passe, role, pilote_id, company_id) VALUES (:nom, :prenom, :email, :telephone, :mot_de_passe, :role, :pilote_id, :company_id)");
-        return $stmt->execute([
-            'nom'          => $data['nom'],
-            'prenom'       => $data['prenom'],
-            'email'        => $data['email'],
-            'telephone'    => $data['telephone'] ?? null,
-            'mot_de_passe' => password_hash($data['password'], PASSWORD_BCRYPT),
-            'role'         => $data['role'] ?? 'visiteur',
-            'pilote_id'    => $data['pilote_id'] ?? null,
-            'company_id'   => $data['company_id'] ?? null,
-        ]) ? (int)$this->db->lastInsertId() : 0;
+        try {
+            $stmt = $this->db->prepare("INSERT INTO user (nom, prenom, email, telephone, mot_de_passe, role, pilote_id, company_id) VALUES (:nom, :prenom, :email, :telephone, :mot_de_passe, :role, :pilote_id, :company_id)");
+            $success = $stmt->execute([
+                'nom'          => $data['nom'],
+                'prenom'       => $data['prenom'],
+                'email'        => $data['email'],
+                'telephone'    => $data['telephone'] ?? null,
+                'mot_de_passe' => password_hash($data['password'], PASSWORD_BCRYPT),
+                'role'         => $data['role'] ?? 'visiteur',
+                'pilote_id'    => $data['pilote_id'] ?? null,
+                'company_id'   => $data['company_id'] ?? null,
+            ]);
+            return $success ? (int)$this->db->lastInsertId() : 0;
+        } catch (\PDOException $e) {
+            // Gestion de l'erreur de duplication au cas où la validation PHP soit contournée
+            if ($e->getCode() == 23000) {
+                return 0;
+            }
+            throw $e;
+        }
     }
 
     public function updateCompanyLink(int $userId, int $companyId, string $role = 'entreprise'): bool
