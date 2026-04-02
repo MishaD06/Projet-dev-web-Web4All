@@ -18,6 +18,9 @@ public/uploads/*
 # Pour les KBIS
 storage/upload/company_requests/*
 
+!/storage/uploads/.htaccess
+!/storage/uploads/company_requests/.htaccess
+
 # On garde les dossiers vides sur Git grâce au .gitkeep
 !public/uploads/.gitkeep
 !storage/upload/company_requests/.gitkeep
