@@ -1,0 +1,102 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'offers' %}
+{% block title %}Offres de stage{% endblock %}
+{% block description %}Trouvez le stage idéal parmi des centaines d'offres sur StageLab.{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Offres de stage</h1>
+    {% if auth_user and auth_user.role in ['admin','pilote'] %}
+    <a href="/offres/creer" class="btn"><i class="fas fa-plus"></i> Nouvelle offre</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <form class="filters-bar" action="/offres" method="get">
+        <input type="text" name="q" class="form-control" placeholder="Titre, mots-clés" value="{{ filters.q }}" style="flex:2;min-width:160px;">
+        
+        {# Filtre par Skill #}
+        <select name="skill" class="form-control" style="flex:1;min-width:140px;">
+            <option value="">Toutes les compétences</option>
+            {% for skill in skills %}
+            <option value="{{ skill.id }}" {% if filters.skillId == skill.id %}selected{% endif %}>{{ skill.nom }}</option>
+            {% endfor %}
+        </select>
+
+        {# Filtre par Entreprise #}
+        <select name="entreprise" class="form-control" style="flex:1;min-width:140px;">
+            <option value="">Toutes les entreprises</option>
+            {% for company in companies %}
+            <option value="{{ company.id }}" {% if filters.companyId == company.id %}selected{% endif %}>{{ company.nom }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+    </form>
+</div>
+
+{% if offers.data is empty %}
+<div class="card">
+    <div class="empty-state">
+        <i class="fas fa-briefcase"></i>
+        <p>Aucune offre ne correspond à votre recherche.</p>
+        <a href="/offres" class="btn">Voir toutes les offres</a>
+    </div>
+</div>
+{% else %}
+<div class="offers-grid">
+    {% for offer in offers.data %}
+    <div class="offer-card">
+        <div class="offer-title">{{ offer.titre }}</div>
+        <div class="offer-company"><i class="fas fa-building"></i> {{ offer.entreprise_nom }}</div>
+        
+        {# AFFICHAGE DES SKILLS EN BADGES #}
+        {% if offer.skills is not empty %}
+        <div style="margin:.6rem 0; display:flex; flex-wrap:wrap; gap:6px;">
+            {% for s in offer.skills %}
+                <span style="background:rgba(108, 92, 231, 0.08); color:var(--violet); font-size:.75rem; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(108, 92, 231, 0.15); font-weight: 500;">
+                    {{ s.nom }}
+                </span>
+            {% endfor %}
+        </div>
+        {% else %}
+            {# Espace vide pour garder l'alignement des cartes si pas de skills #}
+            <div style="margin:.6rem 0; height: 26px;"></div>
+        {% endif %}
+
+        <div style="font-size:.85rem;margin:.3rem 0; display: flex; gap: 12px; flex-wrap: wrap;">
+            <span title="Rémunération"><i class="fas fa-euro-sign" style="color:var(--ink-muted);"></i> {{ offer.remuneration|number_format(0, ',', ' ') }} €/mois</span>
+            {% if offer.duree_mois %}
+            <span style="color:var(--violet);" title="Durée"><i class="fas fa-hourglass-half"></i> {{ offer.duree_mois }} mois</span>
+            {% endif %}
+        </div>
+
+        <div class="offer-footer">
+            <span style="color:var(--ink-muted);font-size:.8rem;" title="Date de publication">
+                <i class="far fa-clock"></i> {{ offer.date_publication }}
+            </span>
+            <div class="action-group">
+                <a href="/offres/{{ offer.id }}" class="btn btn-small">Voir</a>
+                
+                {% if auth_user and auth_user.role in ['admin','pilote'] %}
+                <a href="/offres/{{ offer.id }}/modifier" class="btn btn-small btn-outline" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <form method="POST" action="/offres/{{ offer.id }}/supprimer" style="display:inline;" onsubmit="return confirm('Supprimer cette offre ?')">
+                    {{ csrf_field()|raw }}
+                    <button type="submit" class="btn btn-small btn-danger" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# Pagination basée sur l'objet 'offers' retourné par le controller #}
+{% include '_partials/pagination.html.twig' with {paginator: offers, base_url: '/offres'} %}
+
+{% endif %}
+{% endblock %}

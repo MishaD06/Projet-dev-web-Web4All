@@ -1,0 +1,172 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'offers' %}
+{% block title %}{{ offer.titre }}{% endblock %}
+{% block description %}Postulez à l'offre {{ offer.titre }} chez {{ offer.entreprise_nom }} sur StageLab.{% endblock %}
+
+{% block content %}
+
+{# --- ZONE DE MESSAGES ET ALERTES --- #}
+{% if app.request.query.get('error') %}
+    <div style="background:#fee2e2; color:#991b1b; padding:.8rem 1rem; border-radius:var(--radius-md); margin-bottom:1rem; border:1px solid #fecaca; display:flex; align-items:center; gap:.8rem;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>
+            {% if app.request.query.get('error') == 'already_applied' %}
+                Vous avez déjà postulé à cette offre.
+            {% elseif app.request.query.get('error') == 'lm_too_short' %}
+                Votre lettre de motivation est trop courte (50 caractères minimum).
+            {% elseif app.request.query.get('error') == 'cv_invalid' %}
+                Le fichier CV est invalide ou trop lourd (Format PDF uniquement).
+            {% else %}
+                Une erreur est survenue lors de l'envoi de votre candidature.
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+{% if app.request.query.get('wishlist') == 'added' %}
+<div style="background:var(--green-lt);color:var(--green);padding:.8rem 1rem;border-radius:var(--radius-md);margin-bottom:1rem;">
+    <i class="fas fa-check"></i> Offre ajoutée à votre wishlist.
+</div>
+{% endif %}
+
+{# --- CARTE PRINCIPALE DE L'OFFRE --- #}
+<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem;margin-bottom:1rem;">
+        <h1 style="font-size:1.7rem;">{{ offer.titre }}</h1>
+        <span class="badge badge-info">{{ offer.nb_candidatures }} candidature{{ offer.nb_candidatures > 1 ? 's' : '' }}</span>
+    </div>
+
+    <p style="color:var(--violet);margin:.4rem 0;font-size:1.1rem; display:flex; align-items:center; gap:0.8rem;">
+        <span>
+            <i class="fas fa-building"></i>
+            <a href="/entreprises/{{ offer.entreprise_id }}" style="color:var(--violet);text-decoration:none;font-weight:600;">{{ offer.entreprise_nom }}</a>
+        </span>
+        
+        {# OPTIMISATION : Affichage de la ville (ex: Nice) #}
+        {% if offer.localite %}
+        <span style="color:var(--ink-muted); font-size:0.95rem; font-weight:400;">
+            <i class="fas fa-map-marker-alt" style="margin-right:2px;"></i> {{ offer.localite }}
+        </span>
+        {% endif %}
+    </p>
+
+    <p style="color:var(--ink-soft);margin:1.2rem 0;line-height:1.7;">{{ offer.description }}</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin:1.5rem 0;background:var(--cream);padding:1.2rem;border-radius:var(--radius-md);">
+        {% if offer.skills %}
+        <div>
+            <strong style="font-size:.85rem;color:var(--ink-muted);"><i class="fas fa-tag" style="color:var(--violet);"></i> Compétences</strong>
+            <p style="margin-top:.3rem;font-size:.9rem;">
+                {% for skill in offer.skills %}
+                <span style="display:inline-block;background:var(--violet-lt);color:var(--violet);padding:.15rem .5rem;border-radius:4px;font-size:.8rem;margin:.1rem;">{{ skill.nom }}</span>
+                {% endfor %}
+            </p>
+        </div>
+        {% endif %}
+        <div>
+            <strong style="font-size:.85rem;color:var(--ink-muted);"><i class="fas fa-euro-sign" style="color:var(--violet);"></i> Rémunération</strong>
+            <p style="margin-top:.3rem;font-size:.9rem;">{{ offer.remuneration|number_format(0, ',', ' ') }} € / mois</p>
+        </div>
+        <div>
+            <strong style="font-size:.85rem;color:var(--ink-muted);"><i class="fas fa-hourglass-half" style="color:var(--violet);"></i> Durée</strong>
+            <p style="margin-top:.3rem;font-size:.9rem;">{{ offer.duree_mois|default('1') }} mois</p>
+        </div>
+        <div>
+            <strong style="font-size:.85rem;color:var(--ink-muted);"><i class="far fa-calendar" style="color:var(--violet);"></i> Publiée le</strong>
+            <p style="margin-top:.3rem;font-size:.9rem;">{{ offer.date_publication }}</p>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem;">
+        {# ACTIONS ÉTUDIANT #}
+        {% if auth_user and auth_user.role == 'etudiant' %}
+            {% if has_applied %}
+            <span class="btn btn-outline" style="cursor:default;opacity:.6;"><i class="fas fa-check"></i> Déjà postulé</span>
+            {% else %}
+            <button class="btn" onclick="document.getElementById('modalPostuler').style.display='flex'">
+                <i class="fas fa-paper-plane"></i> Postuler
+            </button>
+            {% endif %}
+
+            {% if in_wishlist %}
+            <form method="POST" action="/wishlist/retirer">
+                {{ csrf_field()|raw }}
+                <input type="hidden" name="offre_id" value="{{ offer.id }}">
+                <input type="hidden" name="redirect" value="/offres/{{ offer.id }}">
+                <button type="submit" class="btn btn-outline" style="border-color:var(--red);color:var(--red);">
+                    <i class="fas fa-heart-broken"></i> Retirer de la wishlist
+                </button>
+            </form>
+            {% else %}
+            <form method="POST" action="/wishlist/ajouter">
+                {{ csrf_field()|raw }}
+                <input type="hidden" name="offre_id" value="{{ offer.id }}">
+                <input type="hidden" name="redirect" value="/offres/{{ offer.id }}">
+                <button type="submit" class="btn btn-outline"><i class="fas fa-heart"></i> Ajouter à la wishlist</button>
+            </form>
+            {% endif %}
+        {% endif %}
+
+        {# ACTIONS GESTION #}
+        {% set is_owner = (auth_user.role == 'entreprise' and my_company and offer.entreprise_id == my_company.id) %}
+        
+        {% if auth_user and (auth_user.role in ['admin','pilote'] or is_owner) %}
+        <a href="/offres/{{ offer.id }}/modifier" class="btn btn-outline"><i class="fas fa-edit"></i> Modifier</a>
+        <form method="POST" action="/offres/{{ offer.id }}/supprimer" onsubmit="return confirm('Attention : La suppression est définitive. Confirmer ?')">
+            {{ csrf_field()|raw }}
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Supprimer</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{# --- MODALE DE CANDIDATURE --- #}
+{% if auth_user and auth_user.role == 'etudiant' and not has_applied %}
+<div id="modalPostuler" style="{% if app.request.query.get('error') %}display:flex;{% else %}display:none;{% endif %}position:fixed;inset:0;background:rgba(26,18,8,.5);z-index:200;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:white;border-radius:24px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+            <h3 style="font-size:1.2rem;"><i class="fas fa-paper-plane" style="color:var(--violet);margin-right:.5rem;"></i> Postuler</h3>
+            <button onclick="document.getElementById('modalPostuler').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--ink-muted);">×</button>
+        </div>
+        <form id="formPostuler" method="POST" action="/offres/{{ offer.id }}/postuler" enctype="multipart/form-data">
+            {{ csrf_field()|raw }}
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label for="cv" style="display:block;margin-bottom:.5rem;font-weight:600;">CV (PDF, max 5 Mo) <span style="color:var(--red)">*</span></label>
+                <input type="file" name="cv" id="cv" accept="application/pdf" required class="form-control" style="width:100%;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="lm" style="display:block;margin-bottom:.5rem;font-weight:600;">Lettre de motivation <span style="color:var(--red)">*</span></label>
+                <textarea name="lettre_motivation" id="lm" class="form-control" rows="6" required minlength="50" style="min-height:130px;width:100%;padding:.8rem;border:1px solid var(--cream-3);border-radius:8px;"></textarea>
+            </div>
+            <div style="display:flex;gap:.8rem;flex-wrap:wrap;">
+                <button type="submit" id="submitBtn" class="btn" style="flex:1;"><i class="fas fa-paper-plane"></i> Envoyer candidature</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modalPostuler').style.display='none'" style="flex:1;">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cvInput = document.getElementById('cv');
+    if (cvInput) {
+        cvInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                if (file.type !== "application/pdf") {
+                    alert("Format PDF uniquement.");
+                    this.value = '';
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("Fichier trop lourd (5 Mo max).");
+                    this.value = '';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

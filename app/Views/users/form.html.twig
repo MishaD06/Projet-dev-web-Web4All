@@ -1,0 +1,132 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'users' %}
+{% block title %}{{ user ? 'Modifier' : 'Créer' }} un utilisateur{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:660px;margin:0 auto;">
+    <div class="card-header">
+        <h2><i class="fas fa-user-edit" style="color:var(--violet);"></i>
+            {{ user ? 'Modifier' : 'Ajouter' }} un utilisateur</h2>
+    </div>
+
+    {# Ce partial suffit désormais à afficher toutes les erreurs de validation #}
+    {% include '_partials/alerts.html.twig' %}
+
+    <form method="POST" action="{{ user ? '/admin/utilisateurs/' ~ user.id ~ '/modifier' : '/admin/utilisateurs/creer' }}" novalidate style="margin-top: 1rem;">
+        {{ csrf_field()|raw }}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label for="nom">Nom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="nom" name="nom"
+                       value="{{ old.nom ?? user.nom ?? '' }}" required maxlength="50">
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom <span style="color:var(--red)">*</span></label>
+                <input type="text" class="form-control" id="prenom" name="prenom"
+                       value="{{ old.prenom ?? user.prenom ?? '' }}" required maxlength="50">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email <span style="color:var(--red)">*</span></label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ old.email ?? user.email ?? '' }}" required>
+        </div>
+
+        {# --- AJOUT DU CHAMP TÉLÉPHONE --- #}
+        <div class="form-group" id="phoneGroup" style="display: {% if (old.role ?? user.role ?? '') == 'admin' %}none{% else %}block{% endif %};">
+            <label for="telephone">Téléphone <span id="telRequired" style="color:var(--red); display: {% if (old.role ?? user.role ?? '') == 'admin' %}none{% else %}inline{% endif %};">*</span></label>
+            <input type="tel" class="form-control" id="telephone" name="telephone"
+                   value="{{ old.telephone ?? user.telephone ?? '' }}" placeholder="ex: 0612345678">
+        </div>
+        {# -------------------------------- #}
+
+        <div class="form-group">
+            <label for="role">Rôle <span style="color:var(--red)">*</span></label>
+            {% if auth_role == 'admin' %}
+                <select class="form-control" id="role" name="role" required onchange="updateFieldsByRole(this.value)">
+                    <option value="">Sélectionner…</option>
+                    {% for r in ['etudiant','pilote','admin'] %}
+                    <option value="{{ r }}" {% if (old.role ?? user.role ?? '') == r %}selected{% endif %}>
+                        {{ r|capitalize }}
+                    </option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <input type="text" class="form-control" value="Etudiant" readonly style="background:#f8f9fa;">
+                <input type="hidden" name="role" value="etudiant">
+            {% endif %}
+        </div>
+
+        <div class="form-group" id="piloteGroup" {% if auth_role != 'admin' %}style="display:none;"{% endif %}>
+            <label for="pilote_id">Pilote responsable</label>
+            <select class="form-control" id="pilote_id" name="pilote_id">
+                <option value="">Aucun</option>
+                {% for p in pilotes %}
+                <option value="{{ p.id }}" {% if (old.pilote_id ?? user.pilote_id ?? 0) == p.id %}selected{% endif %}>
+                    {{ p.prenom }} {{ p.nom }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">
+                Mot de passe {% if not user %}<span style="color:var(--red)">*</span>{% endif %}
+            </label>
+            <input type="password" class="form-control" id="password" name="password"
+                   placeholder="{{ user ? 'Laisser vide pour ne pas modifier' : '8 carac. min, 1 Maj, 1 Chiffre' }}"
+                   {% if not user %}required{% endif %} 
+                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                   title="Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre."
+                   autocomplete="new-password">
+            <small class="text-muted" style="display:block;margin-top:0.25rem;">
+                {{ user ? 'Remplir uniquement pour changer le mot de passe.' : 'Doit contenir au moins 8 caractères, une majuscule et un chiffre.' }}
+            </small>
+        </div>
+
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.5rem;">
+            <button type="submit" class="btn"><i class="fas fa-save"></i> Enregistrer</button>
+            <a href="/admin/utilisateurs" class="btn btn-outline"><i class="fas fa-times"></i> Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/**
+ * Gère l'affichage dynamique des champs selon le rôle
+ */
+function updateFieldsByRole(role) {
+    // Gestion du groupe Pilote
+    const piloteEl = document.getElementById('piloteGroup');
+    if (piloteEl) {
+        piloteEl.style.display = (role === 'etudiant') ? 'block' : 'none';
+    }
+
+    // Gestion du groupe Téléphone (Caché pour Admin, Visible sinon)
+    const phoneEl = document.getElementById('phoneGroup');
+    const telReq = document.getElementById('telRequired');
+    if (phoneEl) {
+        const isAdmin = (role === 'admin');
+        phoneEl.style.display = isAdmin ? 'none' : 'block';
+        if (telReq) telReq.style.display = isAdmin ? 'none' : 'inline';
+    }
+}
+
+// Raccourci pour garder la compatibilité si togglePilote est appelé ailleurs
+function togglePilote(role) {
+    updateFieldsByRole(role);
+}
+
+{% if auth_role == 'admin' %}
+    const roleSelect = document.getElementById('role');
+    if (roleSelect) {
+        // Initialisation au chargement de la page
+        updateFieldsByRole(roleSelect.value);
+    }
+{% endif %}
+</script>
+{% endblock %}

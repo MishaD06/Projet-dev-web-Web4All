@@ -1,0 +1,50 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'wishlist' %}
+{% block title %}Ma wishlist{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:1.2rem;">Ma wishlist</h1>
+
+{% if wishlist.data is empty %}
+<div class="card">
+    <div class="empty-state">
+        <i class="fas fa-heart"></i>
+        <p>Votre wishlist est vide.</p>
+        <a href="/offres" class="btn"><i class="fas fa-search"></i> Découvrir des offres</a>
+    </div>
+</div>
+{% else %}
+<div class="offers-grid">
+    {% for item in wishlist.data %}
+    <div class="offer-card">
+        <div class="offer-title">{{ item.titre }}</div>
+        <div class="offer-company"><i class="fas fa-building"></i> {{ item.entreprise_nom }}</div>
+        
+        {% if item.skills %}
+        <div style="color:var(--ink-muted);font-size:.85rem;margin:.4rem 0;">
+            <i class="fas fa-tag"></i> 
+            {% for skill in item.skills %}
+                {{ skill.nom }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="font-size:.85rem;margin:.3rem 0;"><i class="fas fa-euro-sign"></i> {{ item.remuneration|number_format(0,',',' ') }} €/mois</div>
+        
+        <div class="offer-footer">
+            <a href="/offres/{{ item.offre_id }}" class="btn btn-small">Voir</a>
+            <form method="POST" action="/wishlist/retirer" onsubmit="return confirm('Retirer ?')" style="display:inline;">
+                {{ csrf_field()|raw }}
+                <input type="hidden" name="offre_id" value="{{ item.offre_id }}">
+                <button type="submit" class="btn btn-small btn-outline" style="color:var(--red);border-color:var(--red);">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% include '_partials/pagination.html.twig' with {paginator: wishlist, base_url: '/wishlist'} %}
+{% endif %}
+{% endblock %}

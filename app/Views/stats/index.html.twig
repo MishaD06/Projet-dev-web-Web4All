@@ -1,0 +1,250 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'stats' %}
+{% block title %}Statistiques des offres{% endblock %}
+
+{% block head %}
+<style>
+.carousel-outer { position:relative; padding:0 48px; }
+.carousel-window { overflow:hidden; border-radius:16px; }
+.carousel-track { display:flex; transition:transform .45s cubic-bezier(.4,0,.2,1); }
+.carousel-slide { min-width:100%; flex-shrink:0; padding:.25rem; box-sizing:border-box; }
+.carousel-btn {
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:white; border:1.5px solid var(--cream-3); border-radius:50%;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:.9rem; color:var(--ink-soft);
+    box-shadow:0 4px 14px rgba(0,0,0,.08); z-index:10; transition:all .2s;
+}
+.carousel-btn:hover { background:var(--violet); color:white; border-color:var(--violet); }
+.carousel-btn:disabled { opacity:.3; cursor:not-allowed; pointer-events:none; }
+.carousel-btn.prev { left:0; }
+.carousel-btn.next { right:0; }
+.carousel-dots { display:flex; justify-content:center; align-items:center; gap:.45rem; margin-top:1.2rem; }
+.carousel-dot { width:8px; height:8px; border-radius:50%; background:var(--cream-3); cursor:pointer; transition:all .25s; border:none; padding:0; }
+.carousel-dot.active { background:var(--violet); width:22px; border-radius:4px; }
+.carousel-counter { text-align:center; font-size:.8rem; color:var(--ink-muted); margin-top:.5rem; }
+.carousel-counter strong { color:var(--violet); }
+.stat-big-card { background:white; border:1px solid var(--cream-3); border-radius:20px; padding:2.5rem 2rem; text-align:center; transition:all .2s; }
+.stat-big-card:hover { border-color:var(--violet); box-shadow:0 8px 24px rgba(108,77,230,.1); }
+.stat-big-card .icon { width:64px; height:64px; border-radius:20px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem; font-size:1.5rem; }
+.stat-big-card .value { font-size:3rem; font-weight:700; color:var(--violet); font-family:'Playfair Display',serif; margin:.5rem 0; line-height:1.1; }
+.stat-big-card .label { font-size:1rem; font-weight:600; color:var(--ink); margin-bottom:.5rem; }
+.stat-big-card .desc { font-size:.875rem; color:var(--ink-muted); line-height:1.5; }
+.bar-row { display:flex; align-items:center; gap:.8rem; margin-bottom:.8rem; }
+.bar-label { font-size:.85rem; color:var(--ink-soft); min-width:70px; text-align:right; }
+.bar-track { flex:1; background:var(--cream-2); border-radius:6px; height:10px; overflow:hidden; }
+.bar-fill { height:100%; background:linear-gradient(90deg,var(--violet),var(--gold)); border-radius:6px; width:0; transition:width 1s ease; }
+.bar-count { font-size:.875rem; font-weight:600; color:var(--violet); min-width:36px; text-align:right; }
+
+/* --- CORRECTIONS RESPONSIVE MOBILE (Carrousel Uniquement) --- */
+@media (max-width: 767px) {
+    .carousel-outer { padding: 0 28px; }
+    .carousel-btn { width: 30px; height: 30px; font-size: 0.75rem; }
+    .stat-big-card { padding: 1.2rem 0.8rem; }
+    .stat-big-card .icon { width: 42px; height: 42px; font-size: 1.1rem; margin-bottom: 0.6rem; }
+    .stat-big-card .value { font-size: 1.8rem; }
+    .stat-big-card .label { font-size: 0.9rem; }
+    .stat-big-card .desc { font-size: 0.75rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Statistiques des offres</h1>
+    <a href="/dashboard/admin" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-chart-bar" style="color:var(--violet);"></i> Indicateurs clés</h3>
+    </div>
+    <div class="carousel-outer">
+        <button class="carousel-btn prev" id="btnPrev" onclick="moveCarousel(-1)" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
+        <button class="carousel-btn next" id="btnNext" onclick="moveCarousel(1)" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
+        <div class="carousel-window">
+            <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide">
+                    <div class="stat-big-card">
+                        <div class="icon" style="background:#f5f3ff;"><i class="fas fa-briefcase" style="color:var(--violet);"></i></div>
+                        <div class="value">{{ stats.total_offres }}</div>
+                        <div class="label">Offres disponibles</div>
+                        <div class="desc">Nombre total d'offres en base de données</div>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <div class="stat-big-card">
+                        <div class="icon" style="background:#fef3c7;"><i class="fas fa-paper-plane" style="color:#c9964a;"></i></div>
+                        <div class="value">{{ stats.avg_candidatures }}</div>
+                        <div class="label">Candidatures / offre</div>
+                        <div class="desc">Nombre moyen de candidatures par offre</div>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <div class="stat-big-card">
+                        <div class="icon" style="background:#fce7f3;"><i class="fas fa-heart" style="color:#c0392b;"></i></div>
+                        <div class="value">{{ stats.top_wishlist.nb_wishlist ?? 0 }}</div>
+                        <div class="label">Top wishlist</div>
+                        <div class="desc">{{ stats.top_wishlist.titre ?? '—' }}<br>{{ stats.top_wishlist.entreprise_nom ?? '' }}</div>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <div class="stat-big-card">
+                        <div class="icon" style="background:#dcfce7;"><i class="fas fa-calendar-alt" style="color:#2e7d59;"></i></div>
+                        <div class="value">{{ stats.avg_duree }}</div>
+                        <div class="label">Mois en moyenne</div>
+                        <div class="desc">Durée moyenne des stages proposés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="carousel-dots">
+        <button class="carousel-dot active" onclick="goToSlide(0)"></button>
+        <button class="carousel-dot" onclick="goToSlide(1)"></button>
+        <button class="carousel-dot" onclick="goToSlide(2)"></button>
+        <button class="carousel-dot" onclick="goToSlide(3)"></button>
+    </div>
+    <div class="carousel-counter" id="carouselCounter">Carte <strong>1</strong> sur 4</div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-calendar-alt" style="color:var(--violet);"></i> Répartition par durée</h3>
+    </div>
+    <div id="barChart" style="padding:.5rem 0;">
+        {% set durations = [
+            {label: '≤ 2 mois', val: stats.duration_dist.d2 ?? 0},
+            {label: '3 mois',   val: stats.duration_dist.d3 ?? 0},
+            {label: '4 mois',   val: stats.duration_dist.d4 ?? 0},
+            {label: '5 mois',   val: stats.duration_dist.d5 ?? 0},
+            {label: '6 mois',   val: stats.duration_dist.d6 ?? 0},
+            {label: '> 6 mois', val: stats.duration_dist.d7 ?? 0},
+        ] %}
+        
+        {# Calcul du maximum pour l'échelle #}
+        {% set max_val = 1 %}
+        {% for d in durations %}
+            {% if d.val > max_val %}{% set max_val = d.val %}{% endif %}
+        {% endfor %}
+
+        {% for d in durations %}
+        <div class="bar-row">
+            <span class="bar-label">{{ d.label }}</span>
+            <div class="bar-track">
+                {% set width = (d.val / max_val * 100)|round %}
+                <div class="bar-fill" data-width="{{ width }}%" style="width: 0%;"></div>
+            </div>
+            <span class="bar-count">{{ d.val }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if stats.top_wishlist_list is not empty %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-heart" style="color:#c0392b;"></i> Top 5 offres les plus souhaitées</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead><tr><th>#</th><th>Offre</th><th>Entreprise</th><th>Wishlist</th><th>Candidatures</th></tr></thead>
+            <tbody>
+                {% for i, item in stats.top_wishlist_list %}
+                <tr>
+                    <td data-label="#">
+                        {% if i == 0 %}<span class="badge badge-warning">1</span>
+                        {% elseif i == 1 %}<span class="badge badge-info">2</span>
+                        {% else %}<span class="badge" style="background:var(--ink-muted);color:white;">{{ i+1 }}</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Offre" style="font-weight:500;"><a href="/offres/{{ item.id }}" style="color:var(--violet);text-decoration:none;">{{ item.titre }}</a></td>
+                    <td data-label="Entreprise">{{ item.entreprise_nom }}</td>
+                    <td data-label="Wishlist"><i class="fas fa-heart" style="color:#c0392b;"></i> {{ item.nb_wishlist }}</td>
+                    <td data-label="Candidatures">{{ item.nb_candidatures }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+var current = 0, TOTAL = 4;
+var track = document.getElementById('carouselTrack');
+var counter = document.getElementById('carouselCounter');
+var dots = document.querySelectorAll('.carousel-dot');
+var autoPlayTimer;
+
+function updateCarousel() {
+    // 1. On récupère la largeur EXACTE en pixels de la fenêtre visible
+    var slideWidth = track.parentElement.clientWidth;
+    
+    // 2. On déplace le ruban en pixels (px)
+    track.style.transform = 'translateX(-' + (current * slideWidth) + 'px)';
+    
+    // Met à jour les points
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === current); });
+    // Met à jour le compteur texte
+    if(counter) counter.innerHTML = 'Carte <strong>' + (current + 1) + '</strong> sur ' + TOTAL;
+}
+
+function moveCarousel(dir) {
+    current = (current + dir + TOTAL) % TOTAL; 
+    updateCarousel();
+    resetAutoPlay(); // On relance le chrono si l'utilisateur clique
+}
+
+function goToSlide(n) {
+    current = n;
+    updateCarousel();
+    resetAutoPlay();
+}
+
+// -- Gestion du défilement automatique --
+function startAutoPlay() {
+    autoPlayTimer = setInterval(function() {
+        current = (current + 1) % TOTAL;
+        updateCarousel();
+    }, 8000); // 8 secondes : plus de temps pour lire !
+}
+
+function resetAutoPlay() {
+    clearInterval(autoPlayTimer);
+    startAutoPlay();
+}
+
+// Pause automatique si la souris survole le carrousel
+var carouselOuter = document.querySelector('.carousel-outer');
+if (carouselOuter) {
+    carouselOuter.addEventListener('mouseenter', function() { clearInterval(autoPlayTimer); });
+    carouselOuter.addEventListener('mouseleave', function() { startAutoPlay(); });
+}
+
+// Recalcule le cadrage si l'utilisateur redimensionne sa fenêtre (ou tourne son téléphone)
+window.addEventListener('resize', updateCarousel);
+
+// -- Animation des barres de durée au scroll --
+var barChart = document.getElementById('barChart');
+if (barChart) {
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                e.target.querySelectorAll('.bar-fill').forEach(function(b) { 
+                    b.style.width = b.getAttribute('data-width'); 
+                });
+                obs.unobserve(e.target);
+            }
+        });
+    }, {threshold: 0.1});
+    obs.observe(barChart);
+}
+
+// -- Lancement au chargement --
+updateCarousel();
+startAutoPlay();
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'layouts/base.html.twig' %}
+{% set current_route = 'users' %}
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Utilisateurs</h1>
+    {% if auth_user and (auth_user.role == 'admin' or auth_user.role == 'pilote') %}
+    <a href="/admin/utilisateurs/creer" class="btn"><i class="fas fa-plus"></i> Nouvel utilisateur</a>
+    {% endif %}
+</div>
+
+{% if stats %}
+<div class="stats-grid">
+    <div class="stat-card" style="background:linear-gradient(135deg,#1a1208,#2d1f0e);">
+        <div class="stat-number">{{ stats.nb_etudiants }}</div>
+        <div class="stat-label">Étudiants</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c4de6,#5538cc);">
+        <div class="stat-number">{{ stats.nb_candidatures }}</div>
+        <div class="stat-label">Candidatures</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#2e7d59,#1d5c40);">
+        <div class="stat-number">{{ stats.nb_stages }}</div>
+        <div class="stat-label">Stages trouvés</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#c0392b,#a93226);">
+        <div class="stat-number">{{ stats.nb_recherche }}</div>
+        <div class="stat-label">En recherche</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <form class="filters-bar" action="/admin/utilisateurs" method="get">
+        <input type="text" name="q" class="form-control" placeholder="Nom, prénom, email…"
+               value="{{ filters.q }}" style="flex:2;min-width:160px;">
+        
+        {% if auth_user.role == 'admin' %}
+        <select name="role" class="form-control" style="flex:1;min-width:140px;" onchange="this.form.submit()">
+            <option value="">Tous les rôles</option>
+            {% for r in ['etudiant','pilote','admin'] %}
+            <option value="{{ r }}" {% if filters.role == r %}selected{% endif %}>
+                {{ r|capitalize }}
+            </option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        <button type="submit" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.data %}
+                <tr>
+                    <td data-label="Nom" style="font-weight:500;">
+                        {{ user.nom }}
+                        {# Affichage de la dernière candidature si elle existe #}
+                        {% if user.last_application %}
+                            <div style="font-size: 0.85rem; font-weight: normal; color: var(--ink-muted); margin-top: 4px; display: block;">
+                                {% if user.last_application.statut == 'acceptee' %}
+                                    <i class="fas fa-check-circle" style="color: #2e7d59; font-size: 0.75rem;"></i> 
+                                    <strong>Stage :</strong>
+                                {% else %}
+                                    <i class="fas fa-paper-plane" style="font-size: 0.75rem;"></i> 
+                                    <strong>Dernière cand. :</strong>
+                                {% endif %}
+                                {{ user.last_application.entreprise_nom }} — {{ user.last_application.offre_titre }}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td data-label="Prénom">{{ user.prenom }}</td>
+                    <td data-label="Email" style="color:var(--ink-muted);">{{ user.email }}</td>
+                    <td data-label="Rôle">
+                        {% if user.role == 'admin' %}
+                            <span class="badge badge-success">Administrateur</span>
+                        {% elseif user.role == 'pilote' %}
+                            <span class="badge badge-warning">Pilote</span>
+                        {% else %}
+                            <span class="badge badge-info">Étudiant</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Actions">
+                        <div class="action-group">
+                            {# Bouton Modifier : Admin ou Pilote (si étudiant) #}
+                            {% if auth_user.role == 'admin' or (auth_user.role == 'pilote' and user.role == 'etudiant') %}
+                                <a href="/admin/utilisateurs/{{ user.id }}/modifier" class="btn btn-small"><i class="fas fa-edit"></i> Modifier</a>
+                            {% else %}
+                                <a href="/admin/utilisateurs/{{ user.id }}" class="btn btn-small btn-outline">Voir</a>
+                            {% endif %}
+
+                            {# Bouton Supprimer : Admin ou Pilote (si étudiant) #}
+                            {% if auth_user.role == 'admin' or (auth_user.role == 'pilote' and user.role == 'etudiant') %}
+                            <form method="POST" action="/admin/utilisateurs/{{ user.id }}/supprimer" style="display:inline;" onsubmit="return confirm('Supprimer {{ user.prenom }} {{ user.nom }} ?')">
+                                {{ csrf_field()|raw }}
+                                <button type="submit" class="btn btn-small btn-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align:center;color:var(--ink-muted);padding:2rem;">Aucun utilisateur trouvé.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include '_partials/pagination.html.twig' with {paginator: users, base_url: '/admin/utilisateurs', filters: filters} %}
+{% endblock %}

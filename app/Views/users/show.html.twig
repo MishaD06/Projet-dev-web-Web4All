@@ -1,0 +1,93 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}{{ user.prenom }} {{ user.nom }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ user.prenom }} {{ user.nom }}</h1>
+    <a href="/admin/utilisateurs" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Retour</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr;gap:1.2rem;">
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-user" style="color:var(--violet);"></i> Informations</h3>
+            {% if auth_user.role == 'admin' %}
+            <a href="/admin/utilisateurs/{{ user.id }}/modifier" class="btn btn-small btn-outline">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            {% endif %}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+            <div>
+                <p style="font-size:.8rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Nom</p>
+                <p style="font-weight:500;">{{ user.nom }}</p>
+            </div>
+            <div>
+                <p style="font-size:.8rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Prénom</p>
+                <p style="font-weight:500;">{{ user.prenom }}</p>
+            </div>
+            <div>
+                <p style="font-size:.8rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Email</p>
+                <p style="font-weight:500;">{{ user.email }}</p>
+            </div>
+            <div>
+                <p style="font-size:.8rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Rôle</p>
+                <p>
+                    {% if user.role == 'etudiant' %}<span class="badge badge-info">Étudiant</span>
+                    {% elseif user.role == 'pilote' %}<span class="badge badge-warning">Pilote</span>
+                    {% elseif user.role == 'admin' %}<span class="badge badge-success">Admin</span>
+                    {% else %}<span class="badge">{{ user.role }}</span>{% endif %}
+                </p>
+            </div>
+            <div>
+                <p style="font-size:.8rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Inscrit le</p>
+                <p style="font-weight:500;">{{ user.date_inscription|date('d/m/Y') }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% if candidatures is defined and candidatures %}
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-paper-plane" style="color:var(--violet);"></i> Candidatures ({{ candidatures|length }})</h3>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr><th>Offre</th><th>Entreprise</th><th>Date</th><th>Statut</th><th>CV</th></tr>
+                </thead>
+                <tbody>
+                    {% for c in candidatures %}
+                    <tr>
+                        <td style="font-weight:500;">{{ c.offre_titre }}</td>
+                        <td>{{ c.entreprise_nom }}</td>
+                        <td style="white-space:nowrap;color:var(--ink-muted);">{{ c.date_candidature|date('d/m/Y') }}</td>
+                        <td>
+                            {% if c.statut == 'acceptee' %}<span class="badge badge-success">Acceptée</span>
+                            {% elseif c.statut == 'refusee' %}<span class="badge badge-danger">Refusée</span>
+                            {% else %}<span class="badge badge-warning">En attente</span>{% endif %}
+                        </td>
+                        <td>
+                            <a href="/uploads/{{ c.cv_path }}" target="_blank"
+                               style="color:var(--red);font-size:.85rem;">
+                                <i class="fas fa-file-pdf"></i> CV
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% elseif user.role == 'etudiant' %}
+    <div class="card">
+        <div class="empty-state">
+            <i class="fas fa-file-alt"></i>
+            <p>Cet étudiant n'a pas encore postulé.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
