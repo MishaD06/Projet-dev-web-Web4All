@@ -9,6 +9,7 @@ use App\Models\Offer;
 use App\Models\Application;
 use App\Models\User;
 use App\Models\CompanyAccount;
+use App\Models\PiloteAccount;
 use App\Middleware\AuthMiddleware;
 
 class HomeController
@@ -22,8 +23,17 @@ class HomeController
         $user = Auth::user();
 
         if ($user['role'] === 'visiteur') {
+            // 1. On cherche d'abord si c'est une entreprise
             $caModel = new CompanyAccount();
             $request = $caModel->findByUser((int)$user['id']);
+
+            // 2. Si on ne trouve rien, on cherche si c'est un pilote
+            if (!$request) {
+                $paModel = new PiloteAccount();
+                $request = $paModel->findByUser((int)$user['id']);
+            }
+
+            // On affiche la page d'attente avec les données de la requête (entreprise ou pilote)
             Template::render('auth/waiting_validation.html.twig', ['account' => $request]);
             return;
         }
@@ -46,7 +56,7 @@ class HomeController
                 exit;
         }
     }
-
+    
     public function index(): void
     {
         $offerModel = new Offer();
@@ -135,18 +145,17 @@ class HomeController
         
         $userModel = new User();
         $currentUser = $userModel->find(Auth::id());
-        $currentId = (int)Auth::id(); // Récupération de l'ID pour la validation
+        $currentId = (int)Auth::id(); 
         
         $data = [
-            'nom'       => trim($_POST['nom'] ?? ''), 
-            'prenom'    => trim($_POST['prenom'] ?? ''), 
-            'email'     => trim($_POST['email'] ?? ''),
-            'telephone' => trim($_POST['telephone'] ?? ''),
-            'password'  => $_POST['password'] ?? '',
-            'role'      => $currentUser['role']
+            'nom'        => trim($_POST['nom'] ?? ''), 
+            'prenom'     => trim($_POST['prenom'] ?? ''), 
+            'email'      => trim($_POST['email'] ?? ''),
+            'telephone'  => trim($_POST['telephone'] ?? ''),
+            'password'   => $_POST['password'] ?? '',
+            'role'       => $currentUser['role']
         ];
 
-        // On passe l'ID actuel en 3ème paramètre
         $errors = User::validateData($data, false, $currentId);
 
         if ($errors) {
@@ -159,10 +168,10 @@ class HomeController
         }
 
         $updateData = [
-            'nom'       => $data['nom'],
-            'prenom'    => $data['prenom'],
-            'email'     => $data['email'],
-            'telephone' => $data['telephone']
+            'nom'        => $data['nom'],
+            'prenom'     => $data['prenom'],
+            'email'      => $data['email'],
+            'telephone'  => $data['telephone']
         ];
 
         if ($currentUser['role'] === 'admin') {

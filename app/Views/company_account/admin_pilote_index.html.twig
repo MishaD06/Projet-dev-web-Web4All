@@ -1,0 +1,103 @@
+{% extends 'layouts/base.html.twig' %}
+{% block title %}Validation Pilotes{% endblock %}
+
+{% block content %}
+<style>
+    
+    @media (max-width: 767px) {
+        .table-responsive tr {
+            margin-bottom: 2rem !important; 
+            box-shadow: var(--shadow-md) !important; 
+            border: none !important; 
+        }
+    }
+</style>
+
+<div class="container">
+    
+    {# Page header #}
+    <div class="page-header">
+        <h1 style="display: flex; align-items: center; gap: 15px;">
+            <span style="color: var(--violet);"><i class="fas fa-user-check"></i></span> 
+            Demandes d'inscription Pilotes
+        </h1>
+        
+        <a href="/dashboard/admin" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> 
+            <span>Retour Dashboard</span>
+        </a>
+    </div>
+
+
+    <div class="table-responsive" style="overflow: visible;">
+        <table style="background: transparent;">
+            <thead class="pilote-requests-desktop">
+                <tr>
+                    <th>Candidat</th>
+                    <th>Contact</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr class="card" {% if req.statut != 'pending' %}style="opacity: 0.7;"{% endif %}>
+                    
+                    <td data-label="Candidat">
+                        <strong style="color: var(--violet); font-size: 1.05rem;">
+                            {{ req.nom|upper }} {{ req.prenom }}
+                        </strong>
+                    </td>
+                    
+                    <td data-label="Contact">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span><i class="fas fa-envelope" style="width: 18px; color: var(--ink-muted);"></i> {{ req.email }}</span>
+                            <span><i class="fas fa-phone" style="width: 18px; color: var(--ink-muted);"></i> {{ req.telephone ?: 'Non renseigné' }}</span>
+                        </div>
+                    </td>
+                    
+                    <td data-label="Statut">
+                        {% if req.statut == 'pending' %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% elseif req.statut == 'approved' %}
+                            <span class="badge badge-success">Accepté</span>
+                        {% else %}
+                            <span class="badge badge-danger">Refusé</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td data-label="Date">
+                        {{ req.date_demande|date('d/m/Y') }}
+                    </td>
+                    
+                    <td data-label="Actions" style="text-align: right;">
+                        {% if req.statut == 'pending' %}
+                            <div class="action-group" style="justify-content: flex-end; gap: 10px;">
+                                <form action="/admin/validations/pilotes/{{ req.id }}/approuver" method="POST" onsubmit="return confirm('Valider ce pilote ?');">
+                                    <button type="submit" class="btn btn-small" style="background: var(--green); border-color: var(--green);">Valider</button>
+                                </form>
+                                <form action="/admin/validations/pilotes/{{ req.id }}/refuser" method="POST" onsubmit="return confirm('Refuser ce pilote ?');">
+                                    <button type="submit" class="btn btn-small btn-danger">Refuser</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <small style="color: var(--ink-muted); font-style: italic;">
+                                Traité le {{ req.date_reponse|date('d/m/Y') }}
+                            </small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <p>Aucune demande de pilote pour le moment.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -7,6 +7,7 @@ use App\Core\Template;
 use App\Models\CompanyAccount;
 use App\Models\Company;
 use App\Models\User;
+use App\Models\PiloteAccount; // Ajout du modèle Pilote
 use App\Middleware\AuthMiddleware;
 
 class CompanyAccountController
@@ -59,13 +60,13 @@ class CompanyAccountController
         $ca = $caModel->findWithUser((int)$id);
 
         if ($ca && $ca['statut'] === 'pending') {
-            // 1. Création de l'entreprise avec TOUTES les colonnes obligatoires
+            // 1. Création de l'entreprise avec toutes les colonnes obligatoires
             $companyId = (new Company())->create([
                 'nom' => $ca['temp_company_name'],
                 'description' => $ca['temp_company_desc'],
                 'email_contact' => $ca['email'],
                 'localite' => $ca['temp_company_location'],
-                // FIX ICI : On passe le téléphone récupéré de la demande
+                // On passe le téléphone récupéré de la demande
                 'telephone_contact' => $ca['temp_company_phone'] ?? 'Non renseigné'
             ]);
 
@@ -94,7 +95,7 @@ class CompanyAccountController
     }
 
     /**
-     * VISIONNAGE DU DOCUMENT (KBIS / JUSTIFICATIF)
+     * Visionnage du document Kbis
      */
     public function viewDocument(string $filename): void
     {
@@ -117,6 +118,72 @@ class CompanyAccountController
         header("Content-Length: " . filesize($filePath));
 
         readfile($filePath);
+        exit;
+    }
+
+    // Gestion des pilotes
+
+    /**
+     * Liste des demandes pilotes pour l'admin (Historique complet)
+     */
+    public function adminPiloteIndex(): void
+    {
+        AuthMiddleware::requireRole('admin');
+
+        $paModel = new PiloteAccount();
+        // appeler la méthode d'historique complet
+        $requests = $paModel->getAllWithUsers();
+
+        Template::render('company_account/admin_pilote_index.html.twig', [
+            'requests' => $requests
+        ]);
+    }
+
+    /**
+     * Approuve un compte pilote
+     */
+    public function adminPiloteApprove(string $id): void
+    {
+        AuthMiddleware::requireRole('admin');
+
+        $paModel = new PiloteAccount();
+        $userModel = new User();
+
+        $request = $paModel->find((int)$id);
+
+        if ($request && $request['statut'] === 'pending') {
+            // 1. Passage du rôle visiteur à pilote
+            $userModel->update((int)$request['user_id'], ['role' => 'pilote']);
+
+            // 2. Mise à jour de la demande
+            $paModel->update((int)$id, [
+                'statut' => 'approved',
+                'date_reponse' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        header('Location: /admin/comptes-pilotes?approved=1');
+        exit;
+    }
+
+    /**
+     * Refuse un compte pilote
+     */
+    public function adminPiloteReject(string $id): void
+    {
+        AuthMiddleware::requireRole('admin');
+
+        $paModel = new PiloteAccount();
+        $request = $paModel->find((int)$id);
+
+        if ($request && $request['statut'] === 'pending') {
+            $paModel->update((int)$id, [
+                'statut' => 'rejected',
+                'date_reponse' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        header('Location: /admin/comptes-pilotes?rejected=1');
         exit;
     }
 }

@@ -6,6 +6,7 @@ use App\Core\Auth;
 use App\Core\Template;
 use App\Models\User;
 use App\Models\CompanyAccount;
+use App\Models\PiloteAccount;
 use App\Middleware\AuthMiddleware;
 
 class AuthController
@@ -73,20 +74,19 @@ class AuthController
         $user = $userModel->find($currentUserId);
 
         $data = [
-            'nom'       => trim($_POST['nom'] ?? ''),
-            'prenom'    => trim($_POST['prenom'] ?? ''),
-            'email'     => trim($_POST['email'] ?? ''),
-            'telephone' => trim($_POST['telephone'] ?? ''), // Récupération du champ téléphone
-            'role'      => $user['role']
+            'nom'        => trim($_POST['nom'] ?? ''),
+            'prenom'     => trim($_POST['prenom'] ?? ''),
+            'email'      => trim($_POST['email'] ?? ''),
+            'telephone'  => trim($_POST['telephone'] ?? ''), 
+            'role'       => $user['role']
         ];
 
-        // Sécurité pour les admins (pas de téléphone en BDD)
         if ($user['role'] === 'admin') {
             $data['telephone'] = null;
         }
 
-        // Validation (le 'false' indique que le mot de passe n'est pas obligatoire ici)
-        $errors = User::validateData($data, false);
+        // On passe l'ID actuel (eviter le bug de l'email déjà utilisé)
+        $errors = User::validateData($data, false, (int)$currentUserId);
 
         if ($errors) {
             Template::render('profile.html.twig', [
@@ -97,14 +97,11 @@ class AuthController
             return;
         }
 
-        // Hachage du mot de passe seulement s'il est renseigné
         if (!empty($_POST['password'])) {
             $data['mot_de_passe'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
         }
 
         $userModel->update($currentUserId, $data);
-
-        // On rafraîchit la session pour mettre à jour le nom/prénom dans l'interface
         Auth::set($userModel->find($currentUserId));
 
         header('Location: /profil?updated=1');
@@ -122,15 +119,24 @@ class AuthController
     public function register(): void
     {
         $userModel = new User();
+        $paModel = new PiloteAccount(); // Instance pour la nouvelle table
+        
+        $requestedRole = $_POST['role'] ?? 'etudiant';
+
         $data = [
-            'nom'               => trim($_POST['nom'] ?? ''),
-            'prenom'            => trim($_POST['prenom'] ?? ''),
-            'email'             => trim($_POST['email'] ?? ''),
-            'telephone'         => trim($_POST['telephone'] ?? ''), 
-            'password'          => $_POST['password'] ?? '', 
-            'role'              => $_POST['role'] ?? 'etudiant',
-            'pilote_id'         => $_POST['pilote_id'] ?: null,
+            'nom'        => trim($_POST['nom'] ?? ''),
+            'prenom'     => trim($_POST['prenom'] ?? ''),
+            'email'      => trim($_POST['email'] ?? ''),
+            'telephone'  => trim($_POST['telephone'] ?? ''), 
+            'password'   => $_POST['password'] ?? '', 
+            'role'       => $requestedRole,
+            'pilote_id'  => $_POST['pilote_id'] ?: null,
         ];
+
+        // Logique pilote : On force le rôle visiteur pour le sas d'attente
+        if ($requestedRole === 'pilote') {
+            $data['role'] = 'visiteur';
+        }
 
         $passwordConfirm = $_POST['password_confirm'] ?? '';
         $errors = User::validateData($data, true);
@@ -148,9 +154,23 @@ class AuthController
             return;
         }
 
-        $userModel->create($data);
-        header('Location: /connexion?registered=1');
-        exit;
+        $userId = $userModel->create($data);
+
+        if ($userId) {
+            // Connexion automatique immédiate après création
+            $user = $userModel->find($userId);
+            Auth::set($user);
+
+            // Si c'est un pilote, on crée l'entrée dans la nouvelle table de validation
+            if ($requestedRole === 'pilote') {
+                $paModel->createRequest((int)$userId);
+                header('Location: /inscription/en-attente');
+            } else {
+                // Pour les autres rôles, redirection classique
+                header('Location: /connexion?registered=1');
+            }
+            exit;
+        }
     }
 
     public function registerCompanyForm(): void
@@ -169,13 +189,13 @@ class AuthController
         $caModel = new CompanyAccount();
 
         $userData = [
-            'nom'               => trim($_POST['nom'] ?? ''),
-            'prenom'            => trim($_POST['prenom'] ?? ''),
-            'email'             => trim($_POST['email'] ?? ''),
-            'telephone'         => trim($_POST['telephone'] ?? ''), 
-            'password'          => $_POST['password'] ?? '',
-            'role'              => 'visiteur',
-            'pilote_id'         => null
+            'nom'        => trim($_POST['nom'] ?? ''),
+            'prenom'     => trim($_POST['prenom'] ?? ''),
+            'email'      => trim($_POST['email'] ?? ''),
+            'telephone'  => trim($_POST['telephone'] ?? ''), 
+            'password'   => $_POST['password'] ?? '',
+            'role'       => 'visiteur',
+            'pilote_id'  => null
         ];
 
         $passwordConfirm = $_POST['password_confirm'] ?? '';
@@ -211,6 +231,10 @@ class AuthController
             'temp_company_location'  => trim($_POST['company_location'] ?? ''),
             'temp_company_phone'     => trim($_POST['company_phone'] ?? 'Non renseigné')
         ]);
+
+        // Connexion automatique immédiate après création
+        $user = $userModel->find($userId);
+        Auth::set($user);
 
         header('Location: /inscription/en-attente');
         exit;
