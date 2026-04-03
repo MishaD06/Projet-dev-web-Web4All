@@ -22,29 +22,21 @@ class OfferController
     /** GET /offres */
     public function index(): void
     {
-        $page      = max(1, (int)($_GET['page'] ?? 1));
-        $perPage   = 12; // Forcé à 12 pour une grille de 4 items par ligne
-        $q         = trim($_GET['q'] ?? '');
-        $skillId   = (int)($_GET['skill'] ?? 0);
-        $companyId = (int)($_GET['entreprise'] ?? 0);
+        // 1. On attrape le numéro de page dans l'URL 
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        
+        // 2. On garde tes éventuels filtres de recherche
+        $search = trim($_GET['search'] ?? '');
+        
+        $offerModel = new \App\Models\Offer();
+        
+        // 3. On utilise la méthode search() 
+        $result = $offerModel->search($page, 12, $search);
 
-        if (Auth::role() === 'entreprise') {
-            $myCompany = (new Company())->findByUser(Auth::id());
-            if ($myCompany) {
-                $companyId = (int)$myCompany['id'];
-            }
-        }
-
-        // On passe explicitement 12 au modèle
-        $result    = $this->offerModel->search($page, $perPage, $q, $skillId, $companyId);
-        $skills    = (new Skill())->all();
-        $companies = (new Company())->all();
-
-        Template::render('offers/index.html.twig', [
-            'offers'    => $result, // Contient data, total, pages, current
-            'skills'    => $skills,
-            'companies' => $companies,
-            'filters'   => compact('q', 'skillId', 'companyId'),
+        // 4. On envoie l'objet 'offers' complet à la vue 
+        \App\Core\Template::render('offers/index.html.twig', [
+            'offers'  => $result,
+            'filters' => ['search' => $search]
         ]);
     }
 
@@ -199,8 +191,6 @@ class OfferController
     public function destroy(string $id): void
     {
         AuthMiddleware::requireRole('admin', 'pilote', 'entreprise');
-        // Décommenter si tu as un champ CSRF dans ton bouton de suppression
-        // AuthMiddleware::verifyCsrf();
 
         $offer = $this->offerModel->find((int)$id);
         if (!$offer) { $this->abort404(); return; }

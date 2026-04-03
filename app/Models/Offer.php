@@ -75,7 +75,7 @@ class Offer extends Model
         $stmt->execute($params);
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Crucial : On récupère les skills pour chaque offre pour l'affichage Twig
+        // On récupère les skills pour chaque offre pour l'affichage Twig
         foreach ($items as &$item) {
             $item['skills'] = $this->getSkills((int)$item['id']);
         }
@@ -86,11 +86,13 @@ class Offer extends Model
         $totalStmt->execute($params);
         $totalCount = (int)$totalStmt->fetchColumn();
 
+        // On utilise current_page et last_page pour matcher avec pagination.html.twig
         return [
-            'data'    => $items,
-            'total'   => $totalCount,
-            'pages'   => ceil($totalCount / $perPage),
-            'current' => $page
+            'data'         => $items,
+            'total'        => $totalCount,
+            'per_page'     => $perPage,
+            'current_page' => $page,
+            'last_page'    => (int)ceil($totalCount / $perPage)
         ];
     }
 

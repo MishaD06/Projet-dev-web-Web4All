@@ -95,7 +95,7 @@
     {% endfor %}
 </div>
 
-{# Pagination basée sur l'objet 'offers' retourné par le controller #}
+{# On inclut le composant de pagination en lui passant les données des offres #}
 {% include '_partials/pagination.html.twig' with {paginator: offers, base_url: '/offres'} %}
 
 {% endif %}
