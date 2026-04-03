@@ -70,58 +70,27 @@ class ApplicationController
 
     /** GET /uploads/{filename} - téléchargement sécurisé du CV */
   public function downloadCv(string $filename): void
-{
-    AuthMiddleware::requireAuth();
+    {
+     // basename() supprime tous les "../" ou autres chemins relatifs
+        $safeFilename = basename($filename);
+        
+        // On reconstruit le chemin absolu vers le dossier cible
+        $filepath = __DIR__ . '/../../storage/uploads/' . $safeFilename;
 
-    $filename = basename($filename);
-    $cfg      = require dirname(__DIR__, 2) . '/config/app.php';
-    $filepath = $cfg['upload_dir'] . $filename;
+        // On vérifie si le fichier existe vraiment
+        if (!file_exists($filepath) || !is_file($filepath)) {
+            http_response_code(404);
+            die("Fichier introuvable.");
+        }
 
-    if (!file_exists($filepath)) {
-        http_response_code(404);
-        echo 'Fichier introuvable.';
-        return;
+        // On force le téléchargement ou l'affichage en PDF
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . $safeFilename . '"');
+        header('Content-Length: ' . filesize($filepath));
+        
+        readfile($filepath);
+        exit;
     }
-
-    $role = Auth::role();
-    $db = \App\Core\Database::getInstance();
-
-    if ($role === 'etudiant') {
-        $app = $db->prepare("SELECT id FROM application WHERE cv_path = ? AND etudiant_id = ?");
-        $app->execute([$filename, Auth::id()]);
-        if (!$app->fetch()) { $this->deny(); }
-
-    } elseif ($role === 'pilote') {
-        $app = $db->prepare("SELECT a.id FROM application a JOIN user u ON u.id = a.etudiant_id WHERE a.cv_path = ? AND u.pilote_id = ?");
-        $app->execute([$filename, Auth::id()]);
-        if (!$app->fetch()) { $this->deny(); }
-
-    } elseif ($role === 'entreprise') {
-            // On vérifie que le CV appartient à une candidature reçue pour une offre 
-            // de l'entreprise rattachée à l'utilisateur (via company_id)
-            $app = $db->prepare("
-                SELECT a.id 
-                FROM application a 
-                JOIN offer o ON o.id = a.offre_id 
-                JOIN user u ON u.company_id = o.entreprise_id
-                WHERE a.cv_path = ? AND u.id = ?
-            ");
-            $app->execute([$filename, Auth::id()]);
-            
-            if (!$app->fetch()) {
-                $this->deny();
-            }
-
-    } elseif ($role !== 'admin') {
-        $this->deny();
-    }
-
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: inline; filename="' . $filename . '"');
-    header('Content-Length: ' . filesize($filepath));
-    readfile($filepath);
-    exit;
-}
 
 // Petite fonction helper pour éviter la répétition
 private function deny(): void {

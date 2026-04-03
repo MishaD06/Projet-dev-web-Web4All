@@ -100,25 +100,25 @@ class CompanyAccountController
      */
     public function viewDocument(string $filename): void
     {
-        AuthMiddleware::requireRole('admin', 'pilote');
+        \App\Middleware\AuthMiddleware::requireRole('admin');
 
-        $filePath = dirname(__DIR__, 2) . '/storage/uploads/company_requests/' . $filename;
+        // Bloque les attaques Path Traversal
+        $safeFilename = basename($filename);
+        
+        // Dossier spécifique pour les requêtes d'entreprise
+        $filepath = __DIR__ . '/../../storage/uploads/company_requests/' . $safeFilename;
 
-        if (!file_exists($filePath) || !is_file($filePath)) {
+        // Vérification de l'existence
+        if (!file_exists($filepath) || !is_file($filepath)) {
             http_response_code(404);
-            echo "Document introuvable sur le serveur.";
-            exit;
+            die("Document introuvable ou accès refusé.");
         }
 
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $filePath);
-        finfo_close($finfo);
-
-        header("Content-Type: " . $mimeType);
-        header("Content-Disposition: inline; filename=\"" . $filename . "\"");
-        header("Content-Length: " . filesize($filePath));
-
-        readfile($filePath);
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . $safeFilename . '"');
+        header('Content-Length: ' . filesize($filepath));
+        
+        readfile($filepath);
         exit;
     }
 
