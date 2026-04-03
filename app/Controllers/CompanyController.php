@@ -163,6 +163,9 @@ class CompanyController
     public function destroy(string $id): void
     {
         AuthMiddleware::requireRole('admin', 'pilote');
+        
+        AuthMiddleware::verifyCsrf();
+        
         $this->companyModel->delete((int)$id);
         header('Location: /entreprises?deleted=1');
         exit;

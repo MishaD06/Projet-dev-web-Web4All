@@ -17,7 +17,7 @@ $router->post('/inscription',              'AuthController', 'register');
 $router->get( '/inscription/entreprise',   'AuthController', 'registerCompanyForm');
 $router->post('/inscription/entreprise',   'AuthController', 'registerCompany');
 $router->get( '/inscription/en-attente',   'AuthController', 'pending'); 
-$router->get( '/compte/supprimer',         'AuthController', 'deleteAccountForm');
+$router->post( '/compte/supprimer',         'AuthController', 'deleteAccountForm');
 $router->post('/compte/supprimer',         'AuthController', 'deleteAccount');
 
 // Dashboards

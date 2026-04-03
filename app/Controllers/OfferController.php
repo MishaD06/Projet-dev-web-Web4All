@@ -191,6 +191,8 @@ class OfferController
     public function destroy(string $id): void
     {
         AuthMiddleware::requireRole('admin', 'pilote', 'entreprise');
+        
+        AuthMiddleware::verifyCsrf();
 
         $offer = $this->offerModel->find((int)$id);
         if (!$offer) { $this->abort404(); return; }
