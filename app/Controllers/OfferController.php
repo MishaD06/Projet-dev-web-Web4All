@@ -20,25 +20,35 @@ class OfferController
     }
 
     /** GET /offres */
-    public function index(): void
-    {
-        // 1. On attrape le numéro de page dans l'URL 
-        $page = max(1, (int)($_GET['page'] ?? 1));
-        
-        // 2. On garde tes éventuels filtres de recherche
-        $search = trim($_GET['search'] ?? '');
-        
-        $offerModel = new \App\Models\Offer();
-        
-        // 3. On utilise la méthode search() 
-        $result = $offerModel->search($page, 12, $search);
+public function index(): void
+{
+    // 1. Récupération des paramètres de la barre d'URL
+    $page      = max(1, (int)($_GET['page'] ?? 1));
+    $q         = trim($_GET['q'] ?? ''); 
+    $skillId   = (int)($_GET['skill'] ?? 0);
+    $companyId = (int)($_GET['entreprise'] ?? 0);
+    
+    $offerModel = new \App\Models\Offer();
+    
+    // 2. Appel de la recherche avec tous les filtres
+    $result = $offerModel->search($page, 12, $q, $skillId, $companyId);
 
-        // 4. On envoie l'objet 'offers' complet à la vue 
-        \App\Core\Template::render('offers/index.html.twig', [
-            'offers'  => $result,
-            'filters' => ['search' => $search]
-        ]);
-    }
+    // 3. Récupération des données pour les menus déroulants (indispensable !)
+    $skillModel   = new \App\Models\Skill();
+    $companyModel = new \App\Models\Company();
+
+    // 4. Envoi de TOUTES les données nécessaires à la vue
+    \App\Core\Template::render('offers/index.html.twig', [
+        'offers'    => $result,
+        'skills'    => $skillModel->all(),    // Pour remplir le menu des compétences
+        'companies' => $companyModel->all(), // Pour remplir le menu des entreprises
+        'filters'   => [
+            'q'         => $q,
+            'skillId'   => $skillId,
+            'companyId' => $companyId
+        ]
+    ]);
+}
 
     /** GET /offres/{id} */
     public function show(string $id): void
